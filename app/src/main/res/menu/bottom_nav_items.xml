@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/settingsDest"
+        android:title="@string/nav_settings"
+        android:icon="@drawable/ic_settings_black_24dp"></item>
+    <item android:id="@+id/scheduleDest"
+        android:title="@string/nav_schedule"
+        android:icon="@drawable/ic_schedule_black_24dp"></item>
+    <item android:id="@+id/historyDest"
+        android:title="@string/nav_history"
+        android:icon="@drawable/ic_history_black_24dp"></item>
+</menu>

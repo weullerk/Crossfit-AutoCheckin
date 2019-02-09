@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/scheduleDest">
+
+    <fragment
+        android:id="@+id/settingsDest"
+        android:name="com.alienonwork.crossfitcheckin.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings">
+        <action android:id="@+id/actionFromSettingsToSchedule" app:destination="@id/scheduleDest"/>
+        <action android:id="@+id/actionFromSettingsToHistory" app:destination="@id/historyDest"/>
+    </fragment>
+    <fragment
+        android:id="@+id/scheduleDest"
+        android:name="com.alienonwork.crossfitcheckin.ScheduleFragment"
+        android:label="fragment_schedule"
+        tools:layout="@layout/fragment_schedule">
+        <action android:id="@+id/actionFromScheduleToSettings" app:destination="@id/settingsDest"/>
+        <action android:id="@+id/actionFromScheduleToHistory" app:destination="@id/historyDest"/>
+    </fragment>
+    <fragment
+        android:id="@+id/historyDest"
+        android:name="com.alienonwork.crossfitcheckin.HistoryFragment"
+        android:label="fragment_history"
+        tools:layout="@layout/fragment_history">
+        <action android:id="@+id/actionFromHistoryToSettings" app:destination="@id/settingsDest"/>
+        <action android:id="@+id/actionFromHistoryToSchedule" app:destination="@id/scheduleDest"/>
+    </fragment>
+</navigation>
