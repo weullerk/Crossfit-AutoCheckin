@@ -1,5 +1,7 @@
 package com.alienonwork.crossfitcheckin;
 
+import com.alienonwork.crossfitcheckin.models.ClassModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.alienonwork.crossfitcheckin;
+package com.alienonwork.crossfitcheckin.models;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -22,7 +22,7 @@ public class Checkin {
         this.list = list;
     }
 
-    static class List {
+    public static class List {
         int id;
         long timestampUTC;
         String datetimeUTC;

@@ -1,10 +1,13 @@
-package com.alienonwork.crossfitcheckin;
+package com.alienonwork.crossfitcheckin.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
+
+import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.models.ClassModel;
 
 import java.util.HashMap;
 import java.util.List;

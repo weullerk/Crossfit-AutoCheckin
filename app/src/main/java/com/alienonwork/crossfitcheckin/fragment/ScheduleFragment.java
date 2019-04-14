@@ -1,15 +1,17 @@
-package com.alienonwork.crossfitcheckin;
+package com.alienonwork.crossfitcheckin.fragment;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+
+import com.alienonwork.crossfitcheckin.ClassModelMock;
+import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.adapters.ScheduleExpandableListAdapter;
+import com.alienonwork.crossfitcheckin.models.ClassModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

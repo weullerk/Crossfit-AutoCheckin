@@ -1,4 +1,4 @@
-package com.alienonwork.crossfitcheckin;
+package com.alienonwork.crossfitcheckin.models;
 
 public class ClassModel {
     Integer id;

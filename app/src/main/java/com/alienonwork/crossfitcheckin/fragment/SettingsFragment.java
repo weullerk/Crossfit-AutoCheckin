@@ -1,4 +1,4 @@
-package com.alienonwork.crossfitcheckin;
+package com.alienonwork.crossfitcheckin.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.alienonwork.crossfitcheckin.R;
 
-public class HistoryFragment extends Fragment {
 
-    public HistoryFragment() {
+public class SettingsFragment extends Fragment {
+
+    public SettingsFragment() {
         // Required empty public constructor
     }
 
@@ -24,6 +26,6 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_history, container, false);
+        return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 }

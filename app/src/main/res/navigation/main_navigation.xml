@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/settingsDest"
-        android:name="com.alienonwork.crossfitcheckin.SettingsFragment"
+        android:name="com.alienonwork.crossfitcheckin.fragment.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings">
         <action android:id="@+id/actionFromSettingsToSchedule" app:destination="@id/scheduleDest"/>
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/scheduleDest"
-        android:name="com.alienonwork.crossfitcheckin.ScheduleFragment"
+        android:name="com.alienonwork.crossfitcheckin.fragment.ScheduleFragment"
         android:label="fragment_schedule"
         tools:layout="@layout/fragment_schedule">
         <action android:id="@+id/actionFromScheduleToSettings" app:destination="@id/settingsDest"/>
@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/historyDest"
-        android:name="com.alienonwork.crossfitcheckin.HistoryFragment"
+        android:name="com.alienonwork.crossfitcheckin.fragment.HistoryFragment"
         android:label="fragment_history"
         tools:layout="@layout/fragment_history">
         <action android:id="@+id/actionFromHistoryToSettings" app:destination="@id/settingsDest"/>
