@@ -1,6 +1,6 @@
-package com.alienonwork.crossfitcheckin.models;
+package com.alienonwork.crossfitcheckin.network.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 public class Checkin {
     String status;
@@ -29,7 +29,7 @@ public class Checkin {
         int dayOfYear;
         String hour;
         int[] plans;
-        @SerializedName("class") String className;
+        @Json(name = "class") String className;
         boolean checkinMade;
         boolean blocked;
         boolean weekLimit;

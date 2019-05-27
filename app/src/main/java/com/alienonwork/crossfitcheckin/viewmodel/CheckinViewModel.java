@@ -1,19 +1,16 @@
-package com.alienonwork.crossfitcheckin.viewModels;
+package com.alienonwork.crossfitcheckin.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
-import com.alienonwork.crossfitcheckin.models.Checkin;
+import com.alienonwork.crossfitcheckin.network.model.Checkin;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
-import java.io.IOException;
-
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;

@@ -1,12 +1,13 @@
 package com.alienonwork.crossfitcheckin.activities;
 
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.alienonwork.crossfitcheckin.R;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AndroidThreeTen.init(this);
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         final BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);

@@ -1,17 +1,22 @@
-package com.alienonwork.crossfitcheckin.models;
+package com.alienonwork.crossfitcheckin.repository.entity;
 
-public class ClassModel {
+public class ClassCrossfit {
     Integer id;
-    Integer timestampUTC;
+    Long timestampUTC;
     String datetimeUTC;
     Integer dayOfYear;
     String hour;
     String description;
     Integer vacancy;
 
-    public ClassModel(String description, String hour) {
-        this.description = description;
+    public ClassCrossfit(Integer id, Long timestampUTC, String datetimeUTC, Integer dayOfYear, String hour, String description, Integer vacancy) {
+        this.id = id;
+        this.timestampUTC = timestampUTC;
+        this.datetimeUTC = datetimeUTC;
+        this.dayOfYear = dayOfYear;
         this.hour = hour;
+        this.description = description;
+        this.vacancy = vacancy;
     }
 
     public Integer getId() {
@@ -22,11 +27,11 @@ public class ClassModel {
         this.id = id;
     }
 
-    public Integer getTimestampUTC() {
+    public Long getTimestampUTC() {
         return timestampUTC;
     }
 
-    public void setTimestampUTC(Integer timestampUTC) {
+    public void setTimestampUTC(Long timestampUTC) {
         this.timestampUTC = timestampUTC;
     }
 

@@ -2,6 +2,7 @@ package com.alienonwork.crossfitcheckin.network;
 
 import java.io.IOException;
 
+import androidx.annotation.Nullable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,7 +50,7 @@ public class WodEngageApi {
         return client.newCall(request).execute();
     }
 
-    public Response post(String body, String token) throws IOException {
+    public Response post(String body, @Nullable String token) throws IOException {
         OkHttpClient client = new OkHttpClient();
         MediaType mediaType = MediaType.get("application/json; charset=UTF-8");
 
