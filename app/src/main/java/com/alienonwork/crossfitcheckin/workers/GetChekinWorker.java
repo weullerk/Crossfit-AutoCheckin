@@ -8,6 +8,9 @@ import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,15 +41,23 @@ class GetCheckinWorker extends Worker {
             Checkin checkin = jsonAdapter.fromJson(response.body().string());
 
             for (Checkin.List item : checkin.getList()) {
+
+                Instant timestampUTC = Instant.ofEpochMilli(item.getTimestampUTC());
+                OffsetDateTime datetimeUTC = OffsetDateTime.parse(item.getDatetimeUTC());
+
                 ClassCrossfit classCrossfit = new ClassCrossfit(
                         item.getId(),
-                        item.getTimestampUTC(),
-                        item.getDatetimeUTC(),
+                        timestampUTC,
+                        datetimeUTC,
                         item.getDayOfYear(),
                         item.getHour(),
+                        item.getPlans(),
                         item.getClassName(),
+                        item.isCheckinMade(),
+                        item.isWeekLimit(),
                         item.getVacancy()
                 );
+
                 classCrossfitList.add(classCrossfit);
             }
 

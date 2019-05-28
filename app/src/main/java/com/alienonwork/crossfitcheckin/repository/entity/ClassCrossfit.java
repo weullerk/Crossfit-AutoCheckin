@@ -1,21 +1,29 @@
 package com.alienonwork.crossfitcheckin.repository.entity;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+
 public class ClassCrossfit {
     Integer id;
-    Long timestampUTC;
-    String datetimeUTC;
+    Instant timestampUTC;
+    OffsetDateTime datetimeUTC;
     Integer dayOfYear;
     String hour;
-    String description;
+    int[] plans;
+    String className;
+    Boolean checkinMade;
+    Boolean weekLimit;
     Integer vacancy;
 
-    public ClassCrossfit(Integer id, Long timestampUTC, String datetimeUTC, Integer dayOfYear, String hour, String description, Integer vacancy) {
+    public ClassCrossfit(Integer id, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, String hour, int[] plans, String className, Boolean checkinMade, Boolean weekLimit, Integer vacancy) {
         this.id = id;
         this.timestampUTC = timestampUTC;
         this.datetimeUTC = datetimeUTC;
         this.dayOfYear = dayOfYear;
         this.hour = hour;
-        this.description = description;
+        this.plans = plans;
+        this.className = className;
+        this.checkinMade = checkinMade;
         this.vacancy = vacancy;
     }
 
@@ -27,19 +35,19 @@ public class ClassCrossfit {
         this.id = id;
     }
 
-    public Long getTimestampUTC() {
+    public Instant getTimestampUTC() {
         return timestampUTC;
     }
 
-    public void setTimestampUTC(Long timestampUTC) {
+    public void setTimestampUTC(Instant timestampUTC) {
         this.timestampUTC = timestampUTC;
     }
 
-    public String getDatetimeUTC() {
+    public OffsetDateTime getDatetimeUTC() {
         return datetimeUTC;
     }
 
-    public void setDatetimeUTC(String datetimeUTC) {
+    public void setDatetimeUTC(OffsetDateTime datetimeUTC) {
         this.datetimeUTC = datetimeUTC;
     }
 
@@ -59,12 +67,37 @@ public class ClassCrossfit {
         this.hour = hour;
     }
 
-    public String getDescription() {
-        return description;
+    public int[] getPlans() {
+        return plans;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPlans(int[] plans) {
+        this.plans = plans;
+    }
+
+    public String getclassName() {
+        return className;
+    }
+
+    public void setclassName(String className) {
+        this.className = className;
+    }
+
+
+    public Boolean getCheckinMade() {
+        return checkinMade;
+    }
+
+    public void setCheckinMade(Boolean checkinMade) {
+        this.checkinMade = checkinMade;
+    }
+
+    public Boolean getWeekLimit() {
+        return weekLimit;
+    }
+
+    public void setWeekLimit(Boolean weekLimit) {
+        this.weekLimit = weekLimit;
     }
 
     public Integer getVacancy() {
