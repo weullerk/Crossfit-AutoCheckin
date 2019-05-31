@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
 import com.alienonwork.crossfitcheckin.network.model.Checkin;
+import com.alienonwork.crossfitcheckin.repository.CfCheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -18,7 +19,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import io.reactivex.Single;
 import okhttp3.Response;
 
 class GetCheckinWorker extends Worker {
@@ -40,25 +40,56 @@ class GetCheckinWorker extends Worker {
 
             Checkin checkin = jsonAdapter.fromJson(response.body().string());
 
-            for (Checkin.List item : checkin.getList()) {
+            if (checkin.getList().length > 0) {
 
-                Instant timestampUTC = Instant.ofEpochMilli(item.getTimestampUTC());
-                OffsetDateTime datetimeUTC = OffsetDateTime.parse(item.getDatetimeUTC());
+                for (Checkin.List item : checkin.getList()) {
 
-                ClassCrossfit classCrossfit = new ClassCrossfit(
-                        item.getId(),
-                        timestampUTC,
-                        datetimeUTC,
-                        item.getDayOfYear(),
-                        item.getHour(),
-                        item.getPlans(),
-                        item.getClassName(),
-                        item.isCheckinMade(),
-                        item.isWeekLimit(),
-                        item.getVacancy()
-                );
+                    Instant timestampUTC = Instant.ofEpochMilli(item.getTimestampUTC());
+                    OffsetDateTime datetimeUTC = OffsetDateTime.parse(item.getDatetimeUTC());
 
-                classCrossfitList.add(classCrossfit);
+                    ClassCrossfit classCrossfit = new ClassCrossfit(
+                            item.getId(),
+                            timestampUTC,
+                            datetimeUTC,
+                            item.getDayOfYear(),
+                            item.getHour(),
+                            item.getPlans(),
+                            item.getClassName(),
+                            item.isCheckinMade(),
+                            item.isWeekLimit(),
+                            item.getVacancy()
+                    );
+
+                    classCrossfitList.add(classCrossfit);
+                }
+
+                List<ClassCrossfit> dbClassCrossfitList = CfCheckinDatabaseAccessor
+                        .getInstance(getApplicationContext())
+                        .classCrossfitDAO()
+                        .listClasses(1, 2);
+
+                if (dbClassCrossfitList.size() > 0) {
+                    Integer apiClassLengthChanged = classCrossfitList.size();
+
+                    for  (ClassCrossfit classCrossfit : classCrossfitList) {
+                        for (ClassCrossfit dbClassCrossfit : dbClassCrossfitList) {
+                            if (classCrossfit.getId() == dbClassCrossfit.getId())
+                                apiClassLengthChanged--;
+                        }
+                    }
+
+                    if (apiClassLengthChanged > 0) {
+                        // TODO: 30/05/2019 update notification of modified class flag
+                    }
+                }
+
+                CfCheckinDatabaseAccessor
+                        .getInstance(getApplicationContext())
+                        .classCrossfitDAO()
+                        .insertClasses(classCrossfitList);
+
+            } else {
+                return Result.failure();
             }
 
         } catch (IOException e) {
