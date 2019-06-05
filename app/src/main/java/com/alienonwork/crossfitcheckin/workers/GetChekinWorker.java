@@ -1,7 +1,10 @@
 package com.alienonwork.crossfitcheckin.workers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
+import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
 import com.alienonwork.crossfitcheckin.network.model.Checkin;
 import com.alienonwork.crossfitcheckin.repository.CfCheckinDatabaseAccessor;
@@ -22,7 +25,7 @@ import androidx.work.WorkerParameters;
 import okhttp3.Response;
 
 class GetCheckinWorker extends Worker {
-
+    // TODO: 04/06/2019 get date and token params
     public GetCheckinWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -34,7 +37,8 @@ class GetCheckinWorker extends Worker {
         List<ClassCrossfit> classCrossfitList = new ArrayList<>();
 
         try {
-            Response response = api.post("", "");
+            // TODO: 04/06/2019 parse the url from the date param
+            Response response = api.get("", "");
             Moshi moshi = new Moshi.Builder().build();
             JsonAdapter<Checkin> jsonAdapter = moshi.adapter(Checkin.class);
 
@@ -79,7 +83,10 @@ class GetCheckinWorker extends Worker {
                     }
 
                     if (apiClassLengthChanged > 0) {
-                        // TODO: 30/05/2019 update notification of modified class flag
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+                        sharedPrefEditor.putBoolean(getApplicationContext().getString(R.string.pref_class_modified), true);
+                        sharedPrefEditor.commit();
                     }
                 }
 

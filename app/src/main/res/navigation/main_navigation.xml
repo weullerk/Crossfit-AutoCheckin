@@ -8,8 +8,7 @@
     <fragment
         android:id="@+id/settingsDest"
         android:name="com.alienonwork.crossfitcheckin.fragment.SettingsFragment"
-        android:label="fragment_settings"
-        tools:layout="@layout/fragment_settings">
+        android:label="fragment_settings">
         <action android:id="@+id/actionFromSettingsToSchedule" app:destination="@id/scheduleDest"/>
         <action android:id="@+id/actionFromSettingsToHistory" app:destination="@id/historyDest"/>
     </fragment>

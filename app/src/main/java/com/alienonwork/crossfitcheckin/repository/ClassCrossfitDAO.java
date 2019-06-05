@@ -1,5 +1,6 @@
 package com.alienonwork.crossfitcheckin.repository;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -17,5 +18,8 @@ public interface ClassCrossfitDAO {
 
     @Query("SELECT * FROM ClassCrossfit WHERE dayOfYear >= :firstDayOfYear AND dayOfYear <= :lastDayOfYear")
     public List<ClassCrossfit> listClasses(Integer firstDayOfYear, Integer lastDayOfYear);
+
+    @Query("SELECT * FROM ClassCrossfit WHERE dayOfYear >= :firstDayOfYear AND dayOfYear <= :lastDayOfYear")
+    public LiveData<List<ClassCrossfit>> listClassesLiveData(Integer firstDayOfYear, Integer lastDayOfYear);
 
 }

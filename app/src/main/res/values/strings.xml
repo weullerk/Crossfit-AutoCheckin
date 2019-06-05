@@ -10,6 +10,17 @@
     <string name="request_content_type">application/json; charset=UTF-8</string>
     <string name="wodengage_api_auth">1161.wodengage.com/api/v1/</string>
     <string name="wodengage_api">auth.wodengage.com/api/v1/auth</string>
-
+    <string name="pref_class_modified">PREF_CLASS_MODIFIED</string>
+    <string name="pref_auto_checkin_enabled">PREF_AUTO_CHECKIN_ENABLED</string>
+    <string name="pref_auto_checkin_enabled_title">Auto Checkin</string>
+    <string name="pref_auto_checkin_enabled_summary">Habilitar o checkin automático</string>
+    <string name="pref_checkin_frequency">PREF_CHECKIN_FREQUENCE</string>
+    <string name="pref_checkin_frequency_title">Frequência</string>
+    <string name="pref_checkin_frequency_summary">Quantidade de treinos por semana</string>
+    <string name="pref_checkin_frequency_default">5</string>
+    <string name="pref_checkin_realization">PREF_CHECKIN_TIME</string>
+    <string name="pref_checkin_realization_title">Adiantar checkin</string>
+    <string name="pref_checkin_realization_summary">Tempo que o checkin deve ser feito antes do horário da turma</string>
+    <string name="pref_checkin_realization_default">23</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

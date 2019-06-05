@@ -75,7 +75,7 @@ public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_list_child, parent, false);
         }
         TextView classTextView = convertView.findViewById(R.id.schedule_class_textview);
-        classTextView.setText(String.format("%s - %s", classModel.getDescription(), classModel.getHour()));
+        classTextView.setText(String.format("%s - %s", classModel.getClassName(), classModel.getHour()));
         return convertView;
     }
 

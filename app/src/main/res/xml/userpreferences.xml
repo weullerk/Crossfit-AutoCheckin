@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="@string/pref_auto_checkin_enabled"
+        android:title="@string/pref_auto_checkin_enabled_title"
+        android:summary="@string/pref_auto_checkin_enabled_summary"
+        android:defaultValue="true"
+        />
+    <ListPreference
+        android:key="@string/pref_checkin_frequency"
+        android:title="@string/pref_checkin_frequency_title"
+        android:summary="@string/pref_checkin_frequency_summary"
+        android:dialogTitle="@string/pref_checkin_frequency_title"
+        android:defaultValue="@string/pref_checkin_frequency_default"
+        />
+    <ListPreference
+        android:key="@string/pref_checkin_realization"
+        android:title="@string/pref_checkin_realization_title"
+        android:summary="@string/pref_checkin_realization_summary"
+        android:dialogTitle="@string/pref_checkin_realization_title"
+        android:defaultValue="@string/pref_checkin_realization_default"
+        />
+</PreferenceScreen>

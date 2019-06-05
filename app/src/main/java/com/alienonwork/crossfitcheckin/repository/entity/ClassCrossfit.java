@@ -75,14 +75,13 @@ public class ClassCrossfit {
         this.plans = plans;
     }
 
-    public String getclassName() {
+    public String getClassName() {
         return className;
     }
 
-    public void setclassName(String className) {
+    public void setClassName(String className) {
         this.className = className;
     }
-
 
     public Boolean getCheckinMade() {
         return checkinMade;

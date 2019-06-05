@@ -3,15 +3,18 @@ package com.alienonwork.crossfitcheckin.fragment;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import com.alienonwork.crossfitcheckin.ClassModelMock;
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.adapters.ScheduleExpandableListAdapter;
 import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.viewmodel.ClassCrossfitViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +24,7 @@ import java.util.List;
 public class ScheduleFragment extends Fragment {
 
     private ExpandableListView mExpandableListView;
+    ClassCrossfitViewModel classCrossfitViewModel;
     private List<String> mDays = new ArrayList<String>();
     private HashMap<String, List<ClassCrossfit>> mClasses = new HashMap<String, List<ClassCrossfit>>();
     private ScheduleExpandableListAdapter mScheduleAdapter = new ScheduleExpandableListAdapter(mDays, mClasses);
@@ -52,12 +56,12 @@ public class ScheduleFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        HashMap<String, List<ClassCrossfit>> scheduleListData = ClassModelMock.getData();
-        List<String> days = new ArrayList<>(scheduleListData.keySet());
+        classCrossfitViewModel = ViewModelProviders.of(getActivity()).get(ClassCrossfitViewModel.class);
+        classCrossfitViewModel.getClassCrossfit().observe(this, new Observer<List<ClassCrossfit>>() {
+            @Override
+            public void onChanged(List<ClassCrossfit> classCrossfits) {
 
-        for (String day: days) {
-            mDays.add(day);
-            mClasses.put(day, scheduleListData.get(day));
-        }
+            }
+        });
     }
 }
