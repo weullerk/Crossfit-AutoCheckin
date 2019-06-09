@@ -13,12 +13,14 @@ import android.widget.ExpandableListView;
 
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.adapters.ScheduleExpandableListAdapter;
-import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.repository.entities.ClassCrossfit;
 import com.alienonwork.crossfitcheckin.viewmodel.ClassCrossfitViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.widget.AbsListView.CHOICE_MODE_SINGLE;
 
 
 public class ScheduleFragment extends Fragment {
@@ -50,6 +52,7 @@ public class ScheduleFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mExpandableListView.setAdapter(mScheduleAdapter);
+        mExpandableListView.setChoiceMode(CHOICE_MODE_SINGLE);
     }
 
     @Override

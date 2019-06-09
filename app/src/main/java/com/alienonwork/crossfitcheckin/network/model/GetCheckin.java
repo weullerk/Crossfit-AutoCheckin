@@ -5,7 +5,7 @@ import com.squareup.moshi.Json;
 import androidx.annotation.NonNull;
 import androidx.room.PrimaryKey;
 
-public class Checkin {
+public class GetCheckin {
     String status;
     List[] list;
 
@@ -26,8 +26,6 @@ public class Checkin {
     }
 
     public static class List {
-        @NonNull
-        @PrimaryKey
         int id;
         long timestampUTC;
         String datetimeUTC;

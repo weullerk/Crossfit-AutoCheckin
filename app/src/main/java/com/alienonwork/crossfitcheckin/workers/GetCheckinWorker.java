@@ -6,9 +6,9 @@ import android.preference.PreferenceManager;
 
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
-import com.alienonwork.crossfitcheckin.network.model.Checkin;
+import com.alienonwork.crossfitcheckin.network.model.GetCheckin;
 import com.alienonwork.crossfitcheckin.repository.CfCheckinDatabaseAccessor;
-import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.repository.entities.ClassCrossfit;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -40,13 +40,13 @@ class GetCheckinWorker extends Worker {
             // TODO: 04/06/2019 parse the url from the date param
             Response response = api.get("", "");
             Moshi moshi = new Moshi.Builder().build();
-            JsonAdapter<Checkin> jsonAdapter = moshi.adapter(Checkin.class);
+            JsonAdapter<GetCheckin> jsonAdapter = moshi.adapter(GetCheckin.class);
 
-            Checkin checkin = jsonAdapter.fromJson(response.body().string());
+            GetCheckin checkin = jsonAdapter.fromJson(response.body().string());
 
             if (checkin.getList().length > 0) {
 
-                for (Checkin.List item : checkin.getList()) {
+                for (GetCheckin.List item : checkin.getList()) {
 
                     Instant timestampUTC = Instant.ofEpochMilli(item.getTimestampUTC());
                     OffsetDateTime datetimeUTC = OffsetDateTime.parse(item.getDatetimeUTC());
@@ -77,7 +77,7 @@ class GetCheckinWorker extends Worker {
 
                     for  (ClassCrossfit classCrossfit : classCrossfitList) {
                         for (ClassCrossfit dbClassCrossfit : dbClassCrossfitList) {
-                            if (classCrossfit.getId() == dbClassCrossfit.getId())
+                            if (classCrossfit.getClassId() == dbClassCrossfit.getClassId())
                                 apiClassLengthChanged--;
                         }
                     }

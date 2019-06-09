@@ -3,11 +3,10 @@ package com.alienonwork.crossfitcheckin.viewmodel;
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.annotation.NonNull;
 
 import com.alienonwork.crossfitcheckin.repository.CfCheckinDatabaseAccessor;
-import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.repository.entities.ClassCrossfit;
 
 import java.util.List;
 

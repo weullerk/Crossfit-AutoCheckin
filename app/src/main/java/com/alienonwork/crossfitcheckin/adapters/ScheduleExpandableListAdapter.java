@@ -7,7 +7,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.alienonwork.crossfitcheckin.R;
-import com.alienonwork.crossfitcheckin.repository.entity.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.repository.entities.ClassCrossfit;
 
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +81,6 @@ public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
+        return true;
     }
 }

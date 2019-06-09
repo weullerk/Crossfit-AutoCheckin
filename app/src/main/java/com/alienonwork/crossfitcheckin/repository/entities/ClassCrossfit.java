@@ -1,10 +1,16 @@
-package com.alienonwork.crossfitcheckin.repository.entity;
+package com.alienonwork.crossfitcheckin.repository.entities;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
 public class ClassCrossfit {
+    @PrimaryKey(autoGenerate = true)
     Integer id;
+    Integer classId;
     Instant timestampUTC;
     OffsetDateTime datetimeUTC;
     Integer dayOfYear;
@@ -14,9 +20,10 @@ public class ClassCrossfit {
     Boolean checkinMade;
     Boolean weekLimit;
     Integer vacancy;
+    OffsetDateTime datetimeCheckin;
 
-    public ClassCrossfit(Integer id, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, String hour, int[] plans, String className, Boolean checkinMade, Boolean weekLimit, Integer vacancy) {
-        this.id = id;
+    public ClassCrossfit(Integer classId, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, String hour, int[] plans, String className, Boolean checkinMade, Boolean weekLimit, Integer vacancy) {
+        this.classId = classId;
         this.timestampUTC = timestampUTC;
         this.datetimeUTC = datetimeUTC;
         this.dayOfYear = dayOfYear;
@@ -31,8 +38,12 @@ public class ClassCrossfit {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Integer getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Integer classId) {
+        this.classId = classId;
     }
 
     public Instant getTimestampUTC() {
@@ -105,5 +116,13 @@ public class ClassCrossfit {
 
     public void setVacancy(Integer vacancy) {
         this.vacancy = vacancy;
+    }
+
+    public OffsetDateTime getDatetimeCheckin() {
+        return datetimeCheckin;
+    }
+
+    public void setDatetimeCheckin(OffsetDateTime datetimeCheckin) {
+        this.datetimeCheckin = datetimeCheckin;
     }
 }
