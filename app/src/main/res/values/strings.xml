@@ -3,24 +3,30 @@
     <string name="nav_settings">Configurações</string>
     <string name="nav_schedule">Agendar</string>
     <string name="nav_history">Histórico</string>
-    <string name="url_classes">1161.wodengage.com/api/v1/checkin/getWeek/%s/%s/%d</string>
+
     <string name="request_required_with">com.ionicframework.appengage223601</string>
     <string name="request_user_agent">Mozilla/5.0 (Linux; Android 7.0; Moto C Build/NRD90M.062; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36</string>
     <string name="request_token">MTM5NDY6JDJ5JDEwJE9FcGhjMlEzTXpreWFHRnpaRFZCVXVaVHBSNkN3SHFCbjBUeEVWVjRvcXNpdVg4dXFaNlFx</string>
+    <string name="wodengage_api_auth">auth.wodengage.com/api/v1/auth</string>
     <string name="request_content_type">application/json; charset=UTF-8</string>
-    <string name="wodengage_api_auth">1161.wodengage.com/api/v1/</string>
-    <string name="wodengage_api">auth.wodengage.com/api/v1/auth</string>
+    <string name="wodengage_api_host">1161.wodengage.com</string>
+    <string name="wodengage_get_checkin">/api/v1/checkin/getWeek/%s/%s/%d</string>
+    <string name="wodengage_post_checkin">/api/v1/checkin</string>
+
     <string name="pref_class_modified">PREF_CLASS_MODIFIED</string>
     <string name="pref_auto_checkin_enabled">PREF_AUTO_CHECKIN_ENABLED</string>
     <string name="pref_auto_checkin_enabled_title">Auto Checkin</string>
     <string name="pref_auto_checkin_enabled_summary">Habilitar o checkin automático</string>
+
     <string name="pref_checkin_frequency">PREF_CHECKIN_FREQUENCE</string>
     <string name="pref_checkin_frequency_title">Frequência</string>
     <string name="pref_checkin_frequency_summary">Quantidade de treinos por semana</string>
     <string name="pref_checkin_frequency_default">5</string>
+
     <string name="pref_checkin_realization">PREF_CHECKIN_TIME</string>
     <string name="pref_checkin_realization_title">Adiantar checkin</string>
     <string name="pref_checkin_realization_summary">Tempo que o checkin deve ser feito antes do horário da turma</string>
     <string name="pref_checkin_realization_default">23</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

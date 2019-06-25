@@ -4,7 +4,7 @@
         android:key="@string/pref_auto_checkin_enabled"
         android:title="@string/pref_auto_checkin_enabled_title"
         android:summary="@string/pref_auto_checkin_enabled_summary"
-        android:defaultValue="true"
+        android:defaultValue="false"
         />
     <ListPreference
         android:key="@string/pref_checkin_frequency"
