@@ -74,10 +74,6 @@ public class PostCheckinWorker extends Worker {
                     .classCrossfitDAO()
                     .getLastCheckin();
 
-            if (lastCheckin == null) {
-
-            }
-
             PostCheckin postCheckin = new PostCheckin();
             WodEngageApi api = new WodEngageApi();
 
