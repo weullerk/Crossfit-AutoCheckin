@@ -47,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setSelectedItemId(mNavController.getCurrentDestination().getId());
         bottomNavigationView.setOnNavigationItemSelectedListener(mNavigationItemSelectedListener);
+
+        setupScheduling();
+    }
+
+    private void setupScheduling() {
+
     }
 
 }
