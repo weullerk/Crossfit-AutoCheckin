@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
+import com.alienonwork.crossfitcheckin.helpers.CheckinHelper;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
 import com.alienonwork.crossfitcheckin.network.model.PostCheckin;
 import com.squareup.moshi.JsonAdapter;
@@ -21,17 +23,13 @@ import androidx.work.WorkerParameters;
 import okhttp3.Response;
 
 public class PostCheckinWorker extends Worker {
-    public static final String TAG = "POST_CHECKIN";
+    public static final String TAG = "post_checkin";
 
-    public static final String ERROR_AUTO_CHECKIN_DISABLED = "ERROR_AUTO_CHECKIN_DISABLED";
-    public static final String ERROR_INVALID_USER_ID = "ERROR_INVALID_USER_ID";
-    public static final String ERROR_INVALID_TOKEN = "ERROR_INVALID_TOKEN";
-    public static final String ERROR_INVALID_URL = "ERROR_INVALID_URL";
-    public static final String ERROR_INVALID_CLASS_ID = "ERROR_INVALID_CLASS_ID";
-    public static final String ERROR_INVALID_CLASS_DATE = "ERROR_INVALID_CLASS_DATE";
+    public static final String ERROR_INVALID_CLASS_ID = "error_invalid_class_id";
+    public static final String ERROR_INVALID_CLASS_DATE = "error_invalid_class_date";
 
-    public static final String PARAM_CLASS_ID = "PARAM_CLASS_ID";
-    public static final String PARAM_CLASS_DATE = "PARAM_CLASS_DATE";
+    public static final String PARAM_CLASS_ID = "class_id";
+    public static final String PARAM_CLASS_DATE = "class_date";
 
     Context mContext;
     WorkerParameters mWorkerParameters;
@@ -49,10 +47,10 @@ public class PostCheckinWorker extends Worker {
             if (isAbleToPostCheckin().first) {
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-                String token = sharedPref.getString("TOKEN", "");
+                String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
                 String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
 
-                Integer userId = sharedPref.getInt("USER_ID", 0);
+                Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
                 Integer classId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CLASS_ID, 0);
                 String classDate = mWorkerParameters.getInputData().getString(PostCheckinWorker.PARAM_CLASS_DATE);
                 String utc = OffsetDateTime.now().toString();
@@ -84,8 +82,8 @@ public class PostCheckinWorker extends Worker {
     private Pair<Boolean, HashMap<String, String>> isAbleToPostCheckin() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
         Boolean autoCheckinEnabled = sharedPref.getBoolean(getApplicationContext().getString(R.string.pref_auto_checkin_enabled), false);
-        Integer userId = sharedPref.getInt("USER_ID", 0);
-        String token = sharedPref.getString("TOKEN", "");
+        Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
+        String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
         String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
         Integer classId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CLASS_ID, 0);
         String classDate = mWorkerParameters.getInputData().getString(PostCheckinWorker.PARAM_CLASS_DATE);
@@ -93,19 +91,19 @@ public class PostCheckinWorker extends Worker {
         HashMap<String, String> errors = new HashMap<>();
 
         if (!autoCheckinEnabled) {
-            errors.put(PostCheckinWorker.ERROR_AUTO_CHECKIN_DISABLED, "Auto checkin desabilitado.");
+            errors.put(CheckinHelper.ERROR_AUTO_CHECKIN_DISABLED, "Auto checkin desabilitado.");
         }
 
         if (userId == 0) {
-            errors.put(PostCheckinWorker.ERROR_INVALID_USER_ID, "Usuário não informado.");
+            errors.put(CheckinHelper.ERROR_INVALID_USER_ID, "Usuário não informado.");
         }
 
         if (token.isEmpty()) {
-            errors.put(PostCheckinWorker.ERROR_INVALID_TOKEN, "Token não informado.");
+            errors.put(CheckinHelper.ERROR_INVALID_TOKEN, "Token não informado.");
         }
 
         if (url.isEmpty()) {
-            errors.put(PostCheckinWorker.ERROR_INVALID_URL, "URL inválida.");
+            errors.put(CheckinHelper.ERROR_INVALID_URL, "URL inválida.");
         }
 
         if (classId == 0) {

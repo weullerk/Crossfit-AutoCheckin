@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CrossfitCheckin</string>
+    <string name="app_name">Auto Checkin</string>
     <string name="nav_settings">Configurações</string>
     <string name="nav_schedule">Agendar</string>
     <string name="nav_history">Histórico</string>
@@ -15,7 +15,6 @@
     <string name="wodengage_get_checkin">/api/v1/checkin/getWeek/%s/%s/%d</string>
     <string name="wodengage_post_checkin">/api/v1/checkin</string>
 
-    <string name="pref_class_modified">PREF_CLASS_MODIFIED</string>
     <string name="pref_auto_checkin_enabled">PREF_AUTO_CHECKIN_ENABLED</string>
     <string name="pref_auto_checkin_enabled_title">Auto Checkin</string>
     <string name="pref_auto_checkin_enabled_summary">Habilitar o checkin automático</string>
@@ -27,8 +26,9 @@
 
     <string name="pref_checkin_realization">PREF_CHECKIN_TIME</string>
     <string name="pref_checkin_realization_title">Adiantar checkin</string>
-    <string name="pref_checkin_realization_summary">Tempo que o checkin deve ser feito antes do horário da turma</string>
+    <string name="pref_checkin_realization_summary">Tempo que o checkin deve ser feito antes do horário de inicio da aula</string>
     <string name="pref_checkin_realization_default">23</string>
+
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

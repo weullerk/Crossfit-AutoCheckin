@@ -10,6 +10,6 @@ import androidx.room.Query;
 @Dao
 public interface AgendaDAO {
 
-    @Query("SELECT * FROM Agenda")
+    @Query("SELECT * FROM Agenda ORDER BY dayOfWeek ASC")
     public List<Agenda> listAgenda();
 }

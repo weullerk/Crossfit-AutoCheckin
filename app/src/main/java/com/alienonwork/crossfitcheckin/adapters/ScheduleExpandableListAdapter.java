@@ -7,7 +7,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.alienonwork.crossfitcheckin.R;
-import com.alienonwork.crossfitcheckin.repository.entities.ClassCrossfit;
+import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +15,10 @@ import java.util.List;
 public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
 
     List<String> daysList;
-    HashMap<String, List<ClassCrossfit>> classList;
+    HashMap<String, List<Schedule>> classList;
 
 
-    public ScheduleExpandableListAdapter(List<String> daysList, HashMap<String, List<ClassCrossfit>> classList) {
+    public ScheduleExpandableListAdapter(List<String> daysList, HashMap<String, List<Schedule>> classList) {
         this.daysList = daysList;
         this.classList = classList;
     }
@@ -70,7 +70,7 @@ public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        ClassCrossfit classModel = (ClassCrossfit) getChild(groupPosition, childPosition);
+        Schedule classModel = (Schedule) getChild(groupPosition, childPosition);
         if (convertView == null) {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_list_child, parent, false);
         }

@@ -1,5 +1,9 @@
 package com.alienonwork.crossfitcheckin.helpers;
 
+import android.util.Pair;
+
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.ChronoUnit;
 
@@ -7,7 +11,7 @@ import androidx.annotation.Nullable;
 
 public class Date {
 
-    public static LocalDate[] getFirstAndLastDayOfCurrentWeek(@Nullable LocalDate d) {
+    public static Pair<LocalDate, LocalDate> getFirstAndLastDayOfCurrentWeek(@Nullable LocalDate d) {
         if (d == null)
             d = LocalDate.now();
 
@@ -25,6 +29,10 @@ public class Date {
         firstDayOfCurrentWeek = d.minus(daysUntilFirstDayOfWeek, ChronoUnit.DAYS);
         lastDayOfCurrentWeek = d.plus(daysUntilLastDayOfWeek, ChronoUnit.DAYS);
 
-        return new LocalDate[] { firstDayOfCurrentWeek, lastDayOfCurrentWeek };
+        return new Pair<>(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
+    }
+
+    public static Integer getTodayDayOfWeek() {
+        return LocalDate.now().getDayOfWeek().getValue();
     }
 }
