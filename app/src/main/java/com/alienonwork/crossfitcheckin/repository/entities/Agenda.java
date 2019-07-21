@@ -1,15 +1,18 @@
 package com.alienonwork.crossfitcheckin.repository.entities;
 
+import org.threeten.bp.OffsetTime;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
 public class Agenda {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    Integer id;
     Integer dayOfWeek;
     String name;
-    String time;
+    OffsetTime time;
 
     public Integer getDayOfWeek() {
         return dayOfWeek;
@@ -27,11 +30,11 @@ public class Agenda {
         this.name = name;
     }
 
-    public String getTime() {
+    public OffsetTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(OffsetTime time) {
         this.time = time;
     }
 }

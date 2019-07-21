@@ -18,6 +18,7 @@ import com.squareup.moshi.Moshi;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.OffsetTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class GetCheckinWorker extends Worker {
                         Instant timestampUTC = Instant.ofEpochMilli(item.getTimestampUTC());
                         OffsetDateTime datetimeUTC = OffsetDateTime.parse(item.getDatetimeUTC());
                         Integer dayOfWeek = datetimeUTC.getDayOfWeek().getValue();
+                        OffsetTime time = OffsetTime.parse(item.getHour());
 
                         Schedule schedule = new Schedule(
                             item.getId(),
@@ -90,7 +92,7 @@ public class GetCheckinWorker extends Worker {
                             datetimeUTC,
                             item.getDayOfYear(),
                             dayOfWeek,
-                            item.getHour(),
+                            time,
                             item.getClassName(),
                             item.isBlocked()
                         );

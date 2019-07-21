@@ -31,8 +31,4 @@ public class Date {
 
         return new Pair<>(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
     }
-
-    public static Integer getTodayDayOfWeek() {
-        return LocalDate.now().getDayOfWeek().getValue();
-    }
 }

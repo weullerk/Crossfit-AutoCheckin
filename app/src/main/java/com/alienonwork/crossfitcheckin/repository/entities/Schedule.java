@@ -4,6 +4,7 @@ import com.google.android.material.circularreveal.CircularRevealHelper;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.OffsetTime;
 
 import androidx.room.Entity;
 import androidx.room.OnConflictStrategy;
@@ -11,17 +12,19 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class Schedule {
-    @PrimaryKey
+
+    @PrimaryKey(autoGenerate = true)
+    Integer id;
     Integer classId;
     Instant timestampUTC;
     OffsetDateTime datetimeUTC;
     Integer dayOfYear;
     Integer dayOfWeek;
-    String hour;
+    OffsetTime hour;
     String className;
     Boolean blocked;
 
-    public Schedule(Integer classId, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, Integer dayOfWeek, String hour, String className, Boolean blocked) {
+    public Schedule(Integer classId, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, Integer dayOfWeek, OffsetTime hour, String className, Boolean blocked) {
         this.classId = classId;
         this.timestampUTC = timestampUTC;
         this.datetimeUTC = datetimeUTC;
@@ -32,9 +35,11 @@ public class Schedule {
         this.blocked = blocked;
     }
 
-    public Integer getClassId() {
-        return classId;
+    public Integer getId() {
+        return id;
     }
+
+    public Integer getClassId() { return classId; }
 
     public void setClassId(Integer classId) {
         this.classId = classId;
@@ -66,11 +71,11 @@ public class Schedule {
 
     public void setDayOfWeek(Integer dayOfWeek) { this.dayOfWeek = dayOfWeek; }
 
-    public String getHour() {
+    public OffsetTime getHour() {
         return hour;
     }
 
-    public void setHour(String hour) {
+    public void setHour(OffsetTime hour) {
         this.hour = hour;
     }
 

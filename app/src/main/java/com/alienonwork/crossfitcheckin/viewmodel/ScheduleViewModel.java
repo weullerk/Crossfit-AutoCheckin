@@ -19,7 +19,7 @@ import java.util.List;
 public class ScheduleViewModel extends AndroidViewModel {
 
     private LiveData<List<Schedule>> schedulesLiveData;
-    private LiveData<List<WorkInfo>> postCheckinWorkInfoLiveData;
+    private LiveData<List<WorkInfo>> postCheckinLiveData;
 
     public ScheduleViewModel(@NonNull Application application) {
         super(application);
@@ -40,9 +40,9 @@ public class ScheduleViewModel extends AndroidViewModel {
     }
 
     public void scheduleCheckin() {
-        if (postCheckinWorkInfoLiveData == null) {
-            postCheckinWorkInfoLiveData = WorkManager.getInstance().getWorkInfosByTagLiveData(PostCheckinWorker.TAG);
-            postCheckinWorkInfoLiveData.observe(getApplication(), new Observer<List<WorkInfo>>() {
+        if (postCheckinLiveData == null) {
+            postCheckinLiveData = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(PostCheckinWorker.TAG);
+            postCheckinLiveData.observe(getApplication(), new Observer<List<WorkInfo>>() {
                 @Override
                 public void onChanged(List<WorkInfo> workInfos) {
                     if (workInfos.size() > 0) {
@@ -54,7 +54,7 @@ public class ScheduleViewModel extends AndroidViewModel {
                 }
             });
         }
-        if (postCheckinWorkInfoLiveData.getValue().size() == 0) {
+        if (postCheckinLiveData.getValue().size() == 0) {
             // TODO: 17/07/2019 validate and schedule next checkin
         }
     }
