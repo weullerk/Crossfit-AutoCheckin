@@ -2,8 +2,6 @@ package com.alienonwork.crossfitcheckin.helpers;
 
 import android.util.Pair;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.ChronoUnit;
 
@@ -30,5 +28,12 @@ public class Date {
         lastDayOfCurrentWeek = d.plus(daysUntilLastDayOfWeek, ChronoUnit.DAYS);
 
         return new Pair<>(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
+    }
+
+    public static Pair<LocalDate, LocalDate> getFirstAndLastDayOfNextWeek() {
+        LocalDate date = LocalDate.now();
+        date.plusDays(8 - date.getDayOfWeek().getValue());
+
+        return getFirstAndLastDayOfCurrentWeek(date);
     }
 }

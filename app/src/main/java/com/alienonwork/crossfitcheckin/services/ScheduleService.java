@@ -13,6 +13,7 @@ import com.alienonwork.crossfitcheckin.helpers.Date;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
+import com.alienonwork.crossfitcheckin.workers.GetCheckinWorker;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
@@ -22,13 +23,37 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import androidx.annotation.Nullable;
+import android.util.Pair;
 import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.Observer;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 public class ScheduleService extends LifecycleService {
 
     public static final String TAG = "ScheduleService";
+    private static final String SETUP_SCHEDULE = "SetupSchedule";
 
     public final IBinder binder = new ScheduleServiceBinder();
+
+    private Observer<WorkInfo> workerObserver = new Observer<WorkInfo>() {
+        @Override
+        public void onChanged(WorkInfo workInfo) {
+            if (workInfo.getState().isFinished()) {
+                if (workInfo.getTags().contains(GetCheckinWorker.TAG)) {
+                    Data data = workInfo.getOutputData();
+                    if (data != null && data.getBoolean(ScheduleService.SETUP_SCHEDULE, false)) {
+                        handleSchedule();
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -43,7 +68,7 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "ScheduleService destroyed");
     }
 
-    public void handleSchedule() {
+    public void handleSchedule() throws IllegalArgumentException {
         if (canSchedule()) {
             //has checkin scheduled? is not valid?
             // cancel actions
@@ -81,18 +106,22 @@ public class ScheduleService extends LifecycleService {
                 if (validAgenda == null) validAgenda = agendas.get(0);
 
                 for (Schedule schedule : nextSchedules) {
-                    if (nextSchedule == null && schedule.getClassName() == validAgenda.getName() && schedule.getHour().isEqual(validAgenda.getTime())) {
+                    if (nextSchedule == null
+                            && schedule.getClassName() == validAgenda.getName()
+                            && schedule.getHour().isEqual(validAgenda.getTime())
+                            && schedule.getDayOfWeek() == validAgenda.getDayOfWeek()) {
                         nextSchedule = schedule;
                     }
                 }
 
                 if (nextSchedule != null) {
                     
+                } else {
+                    throw new IllegalStateException("Schedule not found for agenda");
                 }
 
             } else {
-                // no classes listed
-                // call worker to get next classes (GetCheckinWorker)
+                getCheckinList(Date.getFirstAndLastDayOfNextWeek(), true);
             }
         }
     }
@@ -115,10 +144,34 @@ public class ScheduleService extends LifecycleService {
         return true;
     }
 
+    private void getCheckinList(Pair<LocalDate, LocalDate> localDatePair, @Nullable boolean setupSchedule) {
+        Data.Builder builder = new Data.Builder();
 
+        builder.putString(GetCheckinWorker.PARAM_DATE_BEGIN, localDatePair.first.toString());
+        builder.putString(GetCheckinWorker.PARAM_DATE_END, localDatePair.second.toString());
+
+        if (setupSchedule)
+            builder.putBoolean(ScheduleService.SETUP_SCHEDULE, true);
+
+        Data data = builder.build();
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest getCheckin = new OneTimeWorkRequest.Builder(GetCheckinWorker.class)
+                .setConstraints(constraints)
+                .setInputData(data)
+                .addTag(GetCheckinWorker.TAG)
+                .build();
+
+        WorkManager workManager = WorkManager.getInstance(getApplicationContext());
+
+        workManager.enqueue(getCheckin);
+        workManager.getWorkInfoByIdLiveData(getCheckin.getId()).observe(this, workerObserver);
+    }
 
     public class ScheduleServiceBinder extends Binder {
-
         public ScheduleService getService() {
             return ScheduleService.this;
         }

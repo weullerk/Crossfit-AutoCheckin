@@ -60,9 +60,9 @@ public class GetCheckinWorker extends Worker {
                 WodEngageApi api = new WodEngageApi(mContext);
                 List<Schedule> scheduleList = new ArrayList<>();
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-                String dateBegin = mWorkerParameters.getInputData().getString(GetCheckinWorker.PARAM_DATE_BEGIN);
-                String dateEnd = mWorkerParameters.getInputData().getString(GetCheckinWorker.PARAM_DATE_END);
+                Data data = mWorkerParameters.getInputData();
+                String dateBegin = data.getString(GetCheckinWorker.PARAM_DATE_BEGIN);
+                String dateEnd = data.getString(GetCheckinWorker.PARAM_DATE_END);
 
                 Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
                 String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
@@ -128,10 +128,10 @@ public class GetCheckinWorker extends Worker {
                             .scheduleDAO()
                             .insertSchedules(scheduleList);
 
-                    return Result.success();
+                    return Result.success(data);
                 }
 
-                return Result.failure();
+                return Result.failure(data);
             } else {
                 return Result.failure();
             }
@@ -179,19 +179,6 @@ public class GetCheckinWorker extends Worker {
     }
 
     public static void create(Pair<LocalDate, LocalDate> localDatePair) {
-        Data data = new Data.Builder()
-                .putString(GetCheckinWorker.PARAM_DATE_BEGIN, localDatePair.first.toString())
-                .putString(GetCheckinWorker.PARAM_DATE_END, localDatePair.second.toString())
-                .build();
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        OneTimeWorkRequest getCheckin = new OneTimeWorkRequest.Builder(GetCheckinWorker.class)
-                .setConstraints(constraints)
-                .setInputData(data)
-                .addTag(GetCheckinWorker.TAG)
-                .build();
     }
 }
