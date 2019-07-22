@@ -7,17 +7,11 @@
         android:defaultValue="false"
         />
     <ListPreference
-        android:key="@string/pref_checkin_frequency"
-        android:title="@string/pref_checkin_frequency_title"
-        android:summary="@string/pref_checkin_frequency_summary"
-        android:dialogTitle="@string/pref_checkin_frequency_title"
-        android:defaultValue="@string/pref_checkin_frequency_default"
-        />
-    <ListPreference
-        android:key="@string/pref_checkin_realization"
-        android:title="@string/pref_checkin_realization_title"
-        android:summary="@string/pref_checkin_realization_summary"
-        android:dialogTitle="@string/pref_checkin_realization_title"
-        android:defaultValue="@string/pref_checkin_realization_default"
+        android:key="@string/pref_checkin_anticipate"
+        android:title="@string/pref_checkin_anticipate_title"
+        android:summary="@string/pref_checkin_anticipate_summary"
+        android:dialogTitle="@string/pref_checkin_anticipate_title"
+        android:entryValues="@array/checkin_anticipate"
+        android:defaultValue="@string/pref_checkin_anticipate_default"
         />
 </PreferenceScreen>

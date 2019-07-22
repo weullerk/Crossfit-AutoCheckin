@@ -20,8 +20,6 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.OffsetTime;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import androidx.annotation.Nullable;
 import android.util.Pair;
@@ -75,6 +73,7 @@ public class ScheduleService extends LifecycleService {
 
             Integer todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
             OffsetTime todayTime = OffsetTime.now();
+            todayTime.plusMinutes(16);
 
             List<Agenda> agendas = CheckinDatabaseAccessor
                     .getInstance(getApplicationContext())
@@ -115,7 +114,19 @@ public class ScheduleService extends LifecycleService {
                 }
 
                 if (nextSchedule != null) {
-                    
+                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
+
+                    OffsetDateTime dateTimeNextSchedule = nextSchedule.getDatetimeUTC();
+                    OffsetDateTime dateTimeNextScheduleAnticipate = dateTimeNextSchedule.minusHours(anticipated.longValue());
+
+                    Long diffSeconds = dateTimeNextScheduleAnticipate.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
+                    if (diffSeconds > 0) {
+                        // TODO: 21/07/2019 set alarm to call checkin worker at the planned time of checkin
+                    } else {
+                        // TODO: the actual time is greater that the class time minus the anticipate time, so call worker do checkin now
+                    }
+
                 } else {
                     throw new IllegalStateException("Schedule not found for agenda");
                 }

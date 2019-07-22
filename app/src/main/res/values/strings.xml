@@ -19,15 +19,10 @@
     <string name="pref_auto_checkin_enabled_title">Auto Checkin</string>
     <string name="pref_auto_checkin_enabled_summary">Habilitar o checkin automático</string>
 
-    <string name="pref_checkin_frequency">PREF_CHECKIN_FREQUENCE</string>
-    <string name="pref_checkin_frequency_title">Frequência</string>
-    <string name="pref_checkin_frequency_summary">Quantidade de treinos por semana</string>
-    <string name="pref_checkin_frequency_default">5</string>
-
-    <string name="pref_checkin_realization">PREF_CHECKIN_TIME</string>
-    <string name="pref_checkin_realization_title">Adiantar checkin</string>
-    <string name="pref_checkin_realization_summary">Tempo que o checkin deve ser feito antes do horário de inicio da aula</string>
-    <string name="pref_checkin_realization_default">23</string>
+    <string name="pref_checkin_anticipate">PREF_CHECKIN_TIME</string>
+    <string name="pref_checkin_anticipate_title">Antecipar checkin</string>
+    <string name="pref_checkin_anticipate_summary">Tempo em que o checkin deve ser feito antes do horário de inicio da aula</string>
+    <string name="pref_checkin_anticipate_default">1</string>
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
