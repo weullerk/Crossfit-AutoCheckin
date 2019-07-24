@@ -24,6 +24,11 @@
     <string name="pref_checkin_anticipate_summary">Tempo em que o checkin deve ser feito antes do horário de inicio da aula</string>
     <string name="pref_checkin_anticipate_default">1</string>
 
+    <string name="pref_checkin_limit">PREF_CHECKIN_LIMIT</string>
+    <string name="pref_checkin_limit_title">Tempo limite do checkin</string>
+    <string name="pref_checkin_limit_summary">Limite de minutos antes da aula que o checkin poed ser realizado</string>
+    <string name="pref_checkin_limit_default">15</string>
+
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -25,8 +25,10 @@ public interface ScheduleDAO {
     @Query("SELECT * FROM Schedule")
     public LiveData<List<Schedule>> listSchedulesLiveData();
 
-
     @Query("SELECT * FROM Schedule WHERE datetimeUTC > :now")
     public List<Schedule> nextSchedules(OffsetDateTime now);
+
+    @Query("SELECT * FROM Schedule WHERE id = :id")
+    public Schedule getSchedule(int id);
 
 }

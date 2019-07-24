@@ -9,4 +9,12 @@
         <item>18</item>
         <item>23</item>
     </integer-array>
+
+    <integer-array name="checkin_limit">
+        <item>0</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+    </integer-array>
 </resources>

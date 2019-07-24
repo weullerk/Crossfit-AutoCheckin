@@ -10,10 +10,13 @@ import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.CheckinHelper;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
 import com.alienonwork.crossfitcheckin.network.model.PostCheckin;
+import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
+import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.HashMap;
 
@@ -25,11 +28,11 @@ import okhttp3.Response;
 public class PostCheckinWorker extends Worker {
     public static final String TAG = "post_checkin";
 
-    public static final String ERROR_INVALID_CLASS_ID = "error_invalid_class_id";
-    public static final String ERROR_INVALID_CLASS_DATE = "error_invalid_class_date";
+    public static final String ERROR_INVALID_SCHEDULE_ID = "error_invalid_schedule_id";
+    public static final String ERROR_TIME_LIMIT_EXCEEDED = "error_time_limit_exceeded";
+    public static final String ERROR_NO_CONNECTION = "error_no_connection";
 
-    public static final String PARAM_CLASS_ID = "class_id";
-    public static final String PARAM_CLASS_DATE = "class_date";
+    public static final String PARAM_SCHEDULE_ID = "schedule_id";
 
     Context mContext;
     WorkerParameters mWorkerParameters;
@@ -51,8 +54,15 @@ public class PostCheckinWorker extends Worker {
                 String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
 
                 Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-                Integer classId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CLASS_ID, 0);
-                String classDate = mWorkerParameters.getInputData().getString(PostCheckinWorker.PARAM_CLASS_DATE);
+                Integer scheduleId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_SCHEDULE_ID, 0);
+
+                Schedule schedule = CheckinDatabaseAccessor
+                        .getInstance(getApplicationContext())
+                        .scheduleDAO()
+                        .getSchedule(scheduleId);
+
+                Integer classId = schedule.getClassId();
+                String classDate = schedule.getDatetimeUTC().toLocalDate().toString();
                 String utc = OffsetDateTime.now().toString();
 
                 PostCheckin postCheckin = new PostCheckin();
@@ -85,8 +95,7 @@ public class PostCheckinWorker extends Worker {
         Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
         String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
         String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
-        Integer classId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CLASS_ID, 0);
-        String classDate = mWorkerParameters.getInputData().getString(PostCheckinWorker.PARAM_CLASS_DATE);
+        Integer scheduleId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_SCHEDULE_ID, 0);
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -106,14 +115,9 @@ public class PostCheckinWorker extends Worker {
             errors.put(CheckinHelper.ERROR_INVALID_URL, "URL inválida.");
         }
 
-        if (classId == 0) {
-            errors.put(PostCheckinWorker.ERROR_INVALID_CLASS_ID, "Código da turma não informado.");
+        if (scheduleId == 0) {
+            errors.put(PostCheckinWorker.ERROR_INVALID_SCHEDULE_ID, "Código do checkin não informado.");
         }
-
-        if (classDate.isEmpty()) {
-            errors.put(PostCheckinWorker.ERROR_INVALID_CLASS_DATE, "Data da turma não informada.");
-        }
-
         return new Pair(errors.size() == 0, errors);
     }
 }
