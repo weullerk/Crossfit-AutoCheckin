@@ -16,7 +16,6 @@ import android.util.Log;
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.Date;
-import com.alienonwork.crossfitcheckin.network.model.PostCheckin;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
@@ -53,11 +52,37 @@ public class ScheduleService extends LifecycleService {
     private Observer<WorkInfo> workerObserver = new Observer<WorkInfo>() {
         @Override
         public void onChanged(WorkInfo workInfo) {
-            if (workInfo.getState().isFinished()) {
-                if (workInfo.getTags().contains(GetCheckinWorker.TAG)) {
-                    Data data = workInfo.getOutputData();
-                    if (data != null && data.getBoolean(ScheduleService.TAG_SETUP_SCHEDULE, false)) {
+            if (workInfo.getTags().contains(GetCheckinWorker.TAG)) {
+                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                    if (workInfo.getTags().contains(TAG_SETUP_SCHEDULE)) {
                         handleSchedule();
+                    }
+                }
+            }
+
+            if (workInfo.getTags().contains(PostCheckinWorker.TAG)) {
+                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                   // Notifica o usuário que o checkin foi feito
+                   // Chama a função que agenda o próximo checkin
+                }
+                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
+                    Data data = workInfo.getOutputData();
+                    if(data.getBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, false)) {
+                        // chama o worker novamente
+                        // cria um alarme de verificação para o tempo limite do checkin
+                        //notifica que o checkin não foi feito pois não teve conexão
+                    }
+                }
+                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
+                    Data data = workInfo.getOutputData();
+                    if(data.getBoolean(PostCheckinWorker.ERROR_TIME_LIMIT_EXCEEDED, false)) {
+                        handleSchedule();
+                    }
+                }
+                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
+                    Data data = workInfo.getOutputData();
+                    if(data.getBoolean(PostCheckinWorker.ERROR_POST_FAILURE, false)) {
+                        Log.i(TAG, "Falha ao fazer checkin, a requisição do checkin falhou.");
                     }
                 }
             }
@@ -66,7 +91,12 @@ public class ScheduleService extends LifecycleService {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i(TAG, "Debuggin the alarm command. " + intent.toString());
+        Log.i(TAG, "Alarm initiated " + intent.toString());
+
+        if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
+            postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_SCHEDULE_ID, 0));
+        }
+
         return START_NOT_STICKY;
     }
 
@@ -84,7 +114,7 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "ScheduleService destroyed");
     }
 
-    public void handleSchedule() throws IllegalArgumentException {
+    public void handleSchedule() {
         if (canSchedule()) {
             //has checkin scheduled? is not valid?
             // cancel actions
@@ -92,69 +122,83 @@ public class ScheduleService extends LifecycleService {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Integer checkinTimeLimit = sharedPref.getInt(getApplication().getString(R.string.pref_checkin_limit), Integer.parseInt(getApplication().getString(R.string.pref_checkin_limit_default)));
 
-            Integer todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
-            OffsetTime todayTime = OffsetTime.now();
-            todayTime.plusMinutes(checkinTimeLimit);
+            Schedule lastCheckin = CheckinDatabaseAccessor
+                    .getInstance(getApplicationContext())
+                    .scheduleDAO()
+                    .getLastCheckinMade();
+
+            OffsetDateTime startDateTime = OffsetDateTime.now();
+
+            OffsetTime todayTime;
+
+            if (lastCheckin != null && startDateTime.isBefore(lastCheckin.getDatetimeUTC())) {
+                startDateTime = lastCheckin.getDatetimeUTC();
+                todayTime = startDateTime.toOffsetTime();
+            } else {
+                todayTime = startDateTime.toOffsetTime();
+                todayTime.plusMinutes(checkinTimeLimit + 1);
+            }
+
+            Integer todayDayOfWeek = startDateTime.getDayOfWeek().getValue();
 
             List<Agenda> agendas = CheckinDatabaseAccessor
                     .getInstance(getApplicationContext())
                     .agendaDAO()
                     .listAgenda();
 
-            if (agendas.size() == 0) {
-                throw new IllegalArgumentException("No schedule selected");
-            }
+            if (agendas.size() > 0) {
 
-            List<Schedule> nextSchedules = CheckinDatabaseAccessor
-                    .getInstance(getApplicationContext())
-                    .scheduleDAO()
-                    .nextSchedules(OffsetDateTime.now());
+                List<Schedule> nextSchedules = CheckinDatabaseAccessor
+                        .getInstance(getApplicationContext())
+                        .scheduleDAO()
+                        .nextSchedules(startDateTime);
 
-            if (nextSchedules.size() > 0) {
-                //get next agenda
-                Agenda validAgenda = null;
-                Schedule nextSchedule = null;
+                if (nextSchedules.size() > 0) {
+                    Agenda validAgenda = null;
+                    Schedule nextSchedule = null;
 
-                for (Agenda agenda : agendas) {
-                    if (validAgenda == null
-                        && ((agenda.getDayOfWeek() == todayDayOfWeek && agenda.getTime().isAfter(todayTime))
-                            || agenda.getDayOfWeek() > todayDayOfWeek)) {
-                        validAgenda = agenda;
+                    for (Agenda agenda : agendas) {
+                        if (validAgenda == null
+                            && ((agenda.getDayOfWeek() == todayDayOfWeek && agenda.getTime().isAfter(todayTime))
+                                || agenda.getDayOfWeek() > todayDayOfWeek)) {
+                            validAgenda = agenda;
+                        }
                     }
-                }
 
-                if (validAgenda == null) validAgenda = agendas.get(0);
+                    if (validAgenda == null) validAgenda = agendas.get(0);
 
-                for (Schedule schedule : nextSchedules) {
-                    if (nextSchedule == null
-                            && schedule.getClassName() == validAgenda.getName()
-                            && schedule.getHour().isEqual(validAgenda.getTime())
-                            && schedule.getDayOfWeek() == validAgenda.getDayOfWeek()) {
-                        nextSchedule = schedule;
+                    for (Schedule schedule : nextSchedules) {
+                        if (nextSchedule == null
+                                && schedule.getClassName() == validAgenda.getName()
+                                && schedule.getHour().isEqual(validAgenda.getTime())
+                                && schedule.getDayOfWeek() == validAgenda.getDayOfWeek()) {
+                            nextSchedule = schedule;
+                        }
                     }
-                }
 
-                if (nextSchedule != null) {
-                    Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
+                    if (nextSchedule != null) {
+                        Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
 
-                    OffsetDateTime dateTimeNextSchedule = nextSchedule.getDatetimeUTC();
-                    OffsetDateTime dateTimeNextScheduleAnticipate = dateTimeNextSchedule.minusHours(anticipated.longValue());
+                        OffsetDateTime dateTimeNextSchedule = nextSchedule.getDatetimeUTC();
+                        OffsetDateTime dateTimeNextScheduleAnticipate = dateTimeNextSchedule.minusHours(anticipated.longValue());
 
-                    Long diffSeconds = dateTimeNextScheduleAnticipate.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
-                    if (diffSeconds > 0) {
-                        Intent intent = new Intent(ScheduleService.this, ScheduleService.class);
+                        Long diffSeconds = dateTimeNextScheduleAnticipate.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
+                        if (diffSeconds > 0) {
+                            Intent intent = new Intent(ScheduleService.this, ScheduleService.class);
+                            intent.putExtra(EXTRA_SCHEDULE_CHECKIN, true);
+                            intent.putExtra(PostCheckinWorker.PARAM_SCHEDULE_ID, nextSchedule.getId());
 
-                        setupAlarm(diffSeconds, intent);
+                            setupAlarm(diffSeconds, intent);
+                        } else {
+                            postCheckin(nextSchedule.getId());
+                        }
+
                     } else {
-                        postCheckin(nextSchedule.getId());
+                        getCheckinList(Date.getFirstAndLastDayOfNextWeek(), true);
                     }
-
                 } else {
-                    throw new IllegalStateException("Schedule not found for agenda");
+                    getCheckinList(Date.getFirstAndLastDayOfNextWeek(), true);
                 }
-
-            } else {
-                getCheckinList(Date.getFirstAndLastDayOfNextWeek(), true);
             }
         }
     }
@@ -183,20 +227,21 @@ public class ScheduleService extends LifecycleService {
         builder.putString(GetCheckinWorker.PARAM_DATE_BEGIN, localDatePair.first.toString());
         builder.putString(GetCheckinWorker.PARAM_DATE_END, localDatePair.second.toString());
 
-        if (setupSchedule)
-            builder.putBoolean(ScheduleService.TAG_SETUP_SCHEDULE, true);
-
         Data data = builder.build();
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        OneTimeWorkRequest getCheckin = new OneTimeWorkRequest.Builder(GetCheckinWorker.class)
+        OneTimeWorkRequest.Builder getCheckinBuilder = new OneTimeWorkRequest.Builder(GetCheckinWorker.class)
                 .setConstraints(constraints)
                 .setInputData(data)
-                .addTag(GetCheckinWorker.TAG)
-                .build();
+                .addTag(GetCheckinWorker.TAG);
+
+        if (setupSchedule)
+            getCheckinBuilder.addTag(ScheduleService.TAG_SETUP_SCHEDULE);
+
+        OneTimeWorkRequest getCheckin = getCheckinBuilder.build();
 
         WorkManager workManager = WorkManager.getInstance(getApplicationContext());
 
@@ -238,36 +283,6 @@ public class ScheduleService extends LifecycleService {
 
         workManager.enqueue(getCheckin);
         workManager.getWorkInfoByIdLiveData(getCheckin.getId()).observe(this, workerObserver);
-    }
-
-    private boolean hasConnectionEnabled() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return connectivityManager.getActiveNetwork() != null;
-        } else {
-            return connectivityManager.getActiveNetworkInfo() != null;
-        }
-    }
-
-    private boolean hasTimeToCheckin(int id) {
-        Schedule schedule = CheckinDatabaseAccessor
-                .getInstance(getApplicationContext())
-                .scheduleDAO()
-                .getSchedule(id);
-
-        OffsetDateTime dateTimeSchedule = calculateTimeLimitForCheckin(schedule);
-
-        return dateTimeSchedule.isAfter(OffsetDateTime.now());
-    }
-
-    private OffsetDateTime calculateTimeLimitForCheckin(Schedule schedule) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Long checkinTimeLimit = sharedPref.getLong(getApplication().getString(R.string.pref_checkin_limit), Long.parseLong(getApplication().getString(R.string.pref_checkin_limit_default)));
-
-        OffsetDateTime dateTimeSchedule = schedule.getDatetimeUTC();
-        dateTimeSchedule.minusMinutes(checkinTimeLimit);
-
-        return dateTimeSchedule;
     }
 
     public class ScheduleServiceBinder extends Binder {

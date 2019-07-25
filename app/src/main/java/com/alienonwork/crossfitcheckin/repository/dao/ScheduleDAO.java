@@ -9,6 +9,7 @@ import androidx.room.Query;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
 
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 
 import java.util.List;
@@ -30,5 +31,11 @@ public interface ScheduleDAO {
 
     @Query("SELECT * FROM Schedule WHERE id = :id")
     public Schedule getSchedule(int id);
+
+    @Query("SELECT * FROM Schedule WHERE dateTimeCheckin IS NOT NULL ORDER BY dateTimeCheckin DESC LIMIT 1")
+    public Schedule getLastCheckinMade();
+
+    @Query("UPDATE Schedule SET dateTimeCheckin = :dateTimeCheckin WHERE id = :id")
+    public void updateDateTimeCheckin(int id, Instant dateTimeCheckin);
 
 }

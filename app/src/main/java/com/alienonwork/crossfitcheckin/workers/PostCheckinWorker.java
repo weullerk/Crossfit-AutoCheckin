@@ -2,6 +2,8 @@ package com.alienonwork.crossfitcheckin.workers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Pair;
 
@@ -16,11 +18,11 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import okhttp3.Response;
@@ -31,6 +33,7 @@ public class PostCheckinWorker extends Worker {
     public static final String ERROR_INVALID_SCHEDULE_ID = "error_invalid_schedule_id";
     public static final String ERROR_TIME_LIMIT_EXCEEDED = "error_time_limit_exceeded";
     public static final String ERROR_NO_CONNECTION = "error_no_connection";
+    public static final String ERROR_POST_FAILURE = "error_post_failure";
 
     public static final String PARAM_SCHEDULE_ID = "schedule_id";
 
@@ -48,13 +51,27 @@ public class PostCheckinWorker extends Worker {
     public Result doWork() {
         try {
             if (isAbleToPostCheckin().first) {
+                Integer scheduleId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_SCHEDULE_ID, 0);
+                Data.Builder outputData = new Data.Builder();
+
+                if (!hasConnectionEnabled()) {
+                    outputData.putBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, true);
+
+                    return Result.failure(outputData.build());
+                }
+
+                if (!hasTimeToCheckin(scheduleId)) {
+                    outputData.putBoolean(PostCheckinWorker.ERROR_TIME_LIMIT_EXCEEDED, true);
+
+                    return Result.failure(outputData.build());
+                }
+
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
                 String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
                 String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
 
                 Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-                Integer scheduleId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_SCHEDULE_ID, 0);
 
                 Schedule schedule = CheckinDatabaseAccessor
                         .getInstance(getApplicationContext())
@@ -63,13 +80,13 @@ public class PostCheckinWorker extends Worker {
 
                 Integer classId = schedule.getClassId();
                 String classDate = schedule.getDatetimeUTC().toLocalDate().toString();
-                String utc = OffsetDateTime.now().toString();
+                OffsetDateTime utc = OffsetDateTime.now();
 
                 PostCheckin postCheckin = new PostCheckin();
                 postCheckin.setUserId(userId);
                 postCheckin.setClassId(classId);
                 postCheckin.setDateString(classDate);
-                postCheckin.setUtc(utc);
+                postCheckin.setUtc(utc.toString());
 
                 Moshi moshi = new Moshi.Builder().build();
                 JsonAdapter<PostCheckin> jsonAdapter = moshi.adapter(PostCheckin.class);
@@ -78,10 +95,17 @@ public class PostCheckinWorker extends Worker {
                 WodEngageApi api = new WodEngageApi(mContext);
                 Response response = api.post(url, body, token);
 
-                if (response.isSuccessful())
+                if (response.isSuccessful()) {
+                    CheckinDatabaseAccessor
+                            .getInstance(getApplicationContext())
+                            .scheduleDAO()
+                            .updateDateTimeCheckin(scheduleId, utc.toInstant());
+
                     return Result.success();
-                else
-                    return Result.failure();
+                } else {
+                    outputData.putBoolean(PostCheckinWorker.ERROR_POST_FAILURE, true);
+                    return Result.failure(outputData.build());
+                }
             }
             return Result.failure();
         } catch (Exception e) {
@@ -119,5 +143,37 @@ public class PostCheckinWorker extends Worker {
             errors.put(PostCheckinWorker.ERROR_INVALID_SCHEDULE_ID, "Código do checkin não informado.");
         }
         return new Pair(errors.size() == 0, errors);
+    }
+
+    private boolean hasConnectionEnabled() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return connectivityManager.getActiveNetwork() != null;
+        } else {
+            return connectivityManager.getActiveNetworkInfo() != null;
+        }
+    }
+
+    private boolean hasTimeToCheckin(int id) {
+        Schedule schedule = CheckinDatabaseAccessor
+                .getInstance(getApplicationContext())
+                .scheduleDAO()
+                .getSchedule(id);
+
+        OffsetDateTime dateTimeSchedule = calculateTimeLimitForCheckin(schedule);
+
+        return dateTimeSchedule.isAfter(OffsetDateTime.now());
+    }
+
+
+
+    private OffsetDateTime calculateTimeLimitForCheckin(Schedule schedule) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Long checkinTimeLimit = sharedPref.getLong(mContext.getApplicationContext().getString(R.string.pref_checkin_limit), Long.parseLong(getApplicationContext().getString(R.string.pref_checkin_limit_default)));
+
+        OffsetDateTime dateTimeSchedule = schedule.getDatetimeUTC();
+        dateTimeSchedule.minusMinutes(checkinTimeLimit);
+
+        return dateTimeSchedule;
     }
 }

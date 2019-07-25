@@ -1,13 +1,10 @@
 package com.alienonwork.crossfitcheckin.repository.entities;
 
-import com.google.android.material.circularreveal.CircularRevealHelper;
-
 import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.OffsetTime;
 
 import androidx.room.Entity;
-import androidx.room.OnConflictStrategy;
 import androidx.room.PrimaryKey;
 
 @Entity
@@ -23,6 +20,7 @@ public class Schedule {
     OffsetTime hour;
     String className;
     Boolean blocked;
+    Instant dateTimeCheckin;
 
     public Schedule(Integer classId, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, Integer dayOfWeek, OffsetTime hour, String className, Boolean blocked) {
         this.classId = classId;
@@ -93,5 +91,13 @@ public class Schedule {
 
     public void setBlocked(Boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public Instant getDateTimeCheckin() {
+        return dateTimeCheckin;
+    }
+
+    public void setDateTimeCheckin(Instant dateTimeCheckin) {
+        this.dateTimeCheckin = dateTimeCheckin;
     }
 }

@@ -26,10 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.work.Constraints;
 import androidx.work.Data;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import okhttp3.Response;
@@ -128,10 +125,10 @@ public class GetCheckinWorker extends Worker {
                             .scheduleDAO()
                             .insertSchedules(scheduleList);
 
-                    return Result.success(data);
+                    return Result.success();
                 }
 
-                return Result.failure(data);
+                return Result.failure();
             } else {
                 return Result.failure();
             }
