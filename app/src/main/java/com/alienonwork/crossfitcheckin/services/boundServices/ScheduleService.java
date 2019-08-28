@@ -1,13 +1,11 @@
-package com.alienonwork.crossfitcheckin.services;
+package com.alienonwork.crossfitcheckin.services.boundServices;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
