@@ -20,7 +20,6 @@ public class Schedule {
     OffsetTime hour;
     String className;
     Boolean blocked;
-    Instant dateTimeCheckin;
 
     public Schedule(Integer classId, Instant timestampUTC, OffsetDateTime datetimeUTC, Integer dayOfYear, Integer dayOfWeek, OffsetTime hour, String className, Boolean blocked) {
         this.classId = classId;
@@ -91,13 +90,5 @@ public class Schedule {
 
     public void setBlocked(Boolean blocked) {
         this.blocked = blocked;
-    }
-
-    public Instant getDateTimeCheckin() {
-        return dateTimeCheckin;
-    }
-
-    public void setDateTimeCheckin(Instant dateTimeCheckin) {
-        this.dateTimeCheckin = dateTimeCheckin;
     }
 }

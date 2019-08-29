@@ -1,13 +1,10 @@
 package com.alienonwork.crossfitcheckin.services.boundServices;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -16,7 +13,9 @@ import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.Date;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
+import com.alienonwork.crossfitcheckin.repository.entities.Checkin;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
+import com.alienonwork.crossfitcheckin.services.CheckinService;
 import com.alienonwork.crossfitcheckin.workers.GetCheckinWorker;
 import com.alienonwork.crossfitcheckin.workers.PostCheckinWorker;
 
@@ -42,8 +41,8 @@ public class ScheduleService extends LifecycleService {
     public static final String TAG = "ScheduleService";
     private static final String TAG_SETUP_SCHEDULE = "SetupSchedule";
 
-    private static final String EXTRA_SCHEDULE_CHECKIN = "ScheduleCheckin";
-    private static final String EXTRA_RESCHEDULE_CHECKIN = "RescheduleCheckin";
+    public static final String EXTRA_SCHEDULE_CHECKIN = "ScheduleCheckin";
+    public static final String EXTRA_RESCHEDULE_CHECKIN = "RescheduleCheckin";
 
     public final IBinder binder = new ScheduleServiceBinder();
 
@@ -92,7 +91,7 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "Alarm initiated " + intent.toString());
 
         if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
-            postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_SCHEDULE_ID, 0));
+            postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_CHECKIN_ID, 0));
         }
 
         return START_NOT_STICKY;
@@ -114,16 +113,14 @@ public class ScheduleService extends LifecycleService {
 
     public void handleSchedule() {
         if (canSchedule()) {
+            CheckinService checkinService = new CheckinService(getApplicationContext());
             //has checkin scheduled? is not valid?
             // cancel actions
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Integer checkinTimeLimit = sharedPref.getInt(getApplication().getString(R.string.pref_checkin_limit), Integer.parseInt(getApplication().getString(R.string.pref_checkin_limit_default)));
 
-            Schedule lastCheckin = CheckinDatabaseAccessor
-                    .getInstance(getApplicationContext())
-                    .scheduleDAO()
-                    .getLastCheckinMade();
+            Schedule lastCheckin = checkinService.findLastScheduleWithCheckinMade();
 
             OffsetDateTime startDateTime = OffsetDateTime.now();
 
@@ -149,7 +146,7 @@ public class ScheduleService extends LifecycleService {
                 List<Schedule> nextSchedules = CheckinDatabaseAccessor
                         .getInstance(getApplicationContext())
                         .scheduleDAO()
-                        .nextSchedules(startDateTime);
+                        .listNextSchedules(startDateTime);
 
                 if (nextSchedules.size() > 0) {
                     Agenda validAgenda = null;
@@ -175,20 +172,19 @@ public class ScheduleService extends LifecycleService {
                     }
 
                     if (nextSchedule != null) {
-                        Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
+                        Checkin checkin = checkinService.createCheckinForSchedule(nextSchedule);
 
+                        Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
                         OffsetDateTime dateTimeNextSchedule = nextSchedule.getDatetimeUTC();
+
                         OffsetDateTime dateTimeNextScheduleAnticipate = dateTimeNextSchedule.minusHours(anticipated.longValue());
 
                         Long diffSeconds = dateTimeNextScheduleAnticipate.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
                         if (diffSeconds > 0) {
-                            Intent intent = new Intent(ScheduleService.this, ScheduleService.class);
-                            intent.putExtra(EXTRA_SCHEDULE_CHECKIN, true);
-                            intent.putExtra(PostCheckinWorker.PARAM_SCHEDULE_ID, nextSchedule.getId());
-
-                            setupAlarm(diffSeconds, intent);
+                            PendingIntent pendingIntent = checkinService.createPendingIntentAlarmCheckin(checkin.getId(), EXTRA_SCHEDULE_CHECKIN);
+                            checkinService.createCheckinAlarm(diffSeconds, pendingIntent);
                         } else {
-                            postCheckin(nextSchedule.getId());
+                            postCheckin(checkin.getId());
                         }
 
                     } else {
@@ -247,12 +243,6 @@ public class ScheduleService extends LifecycleService {
         workManager.getWorkInfoByIdLiveData(getCheckin.getId()).observe(this, workerObserver);
     }
 
-    private void setupAlarm(Long seconds, Intent intent) {
-        PendingIntent pendingIntent = PendingIntent.getService(ScheduleService.this, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + seconds * 1000, pendingIntent);
-    }
-
     private void postCheckin(int id) {
         postCheckin(id, false);
     }
@@ -260,7 +250,7 @@ public class ScheduleService extends LifecycleService {
     private void postCheckin(int id, Boolean networkRequired) {
         Data.Builder builder = new Data.Builder();
 
-        builder.putInt(PostCheckinWorker.PARAM_SCHEDULE_ID, id);
+        builder.putInt(PostCheckinWorker.PARAM_CHECKIN_ID, id);
 
         Data data = builder.build();
 

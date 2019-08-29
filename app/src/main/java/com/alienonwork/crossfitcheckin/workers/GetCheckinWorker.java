@@ -123,7 +123,7 @@ public class GetCheckinWorker extends Worker {
                     CheckinDatabaseAccessor
                             .getInstance(getApplicationContext())
                             .scheduleDAO()
-                            .insertSchedules(scheduleList);
+                            .createSchedules(scheduleList);
 
                     return Result.success();
                 }

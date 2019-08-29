@@ -18,24 +18,18 @@ import java.util.List;
 public interface ScheduleDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insertSchedules(List<Schedule> schedules);
+    public void createSchedules(List<Schedule> schedules);
 
     @Query("SELECT * FROM Schedule")
     public List<Schedule> listSchedules();
+
+    @Query("SELECT * FROM Schedule WHERE id = :id")
+    public Schedule getSchedule(int id);
 
     @Query("SELECT * FROM Schedule")
     public LiveData<List<Schedule>> listSchedulesLiveData();
 
     @Query("SELECT * FROM Schedule WHERE datetimeUTC > :now")
-    public List<Schedule> nextSchedules(OffsetDateTime now);
-
-    @Query("SELECT * FROM Schedule WHERE id = :id")
-    public Schedule getSchedule(int id);
-
-    @Query("SELECT * FROM Schedule WHERE dateTimeCheckin IS NOT NULL ORDER BY dateTimeCheckin DESC LIMIT 1")
-    public Schedule getLastCheckinMade();
-
-    @Query("UPDATE Schedule SET dateTimeCheckin = :dateTimeCheckin WHERE id = :id")
-    public void updateDateTimeCheckin(int id, Instant dateTimeCheckin);
+    public List<Schedule> listNextSchedules(OffsetDateTime now);
 
 }

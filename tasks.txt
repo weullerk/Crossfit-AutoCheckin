@@ -1,0 +1,11 @@
+- Refatorar handle schedule
+	- Função que retorna ultimo checkin - DONE
+	- Função que calcula o datetime base para buscar as proxímas turmas
+	- Usar id do checkin e não da classe para criar worker - DONE
+	- Criar checkin - DONE
+- Criar validação de checkin agendado
+- Criar login
+- Criar função para ler nome do pacote do appengage para pegar o id
+- Alterações no onCreate
+	- Listar somente as classes da semana
+- Recriar alarme se tiver algum agendado e acontecer reboot
