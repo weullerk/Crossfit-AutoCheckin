@@ -56,6 +56,7 @@ public class PostCheckinWorker extends Worker {
             if (isAbleToPostCheckin().first) {
                 Data.Builder outputData = new Data.Builder();
                 Integer checkinId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+                outputData.putInt(PostCheckinWorker.PARAM_CHECKIN_ID, checkinId);
 
                 CheckinService checkinService = new CheckinService(mContext);
                 Checkin checkin = checkinService.getCheckin(checkinId);

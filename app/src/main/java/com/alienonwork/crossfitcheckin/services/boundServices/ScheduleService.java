@@ -40,6 +40,7 @@ public class ScheduleService extends LifecycleService {
 
     public static final String TAG = "ScheduleService";
     private static final String TAG_SETUP_SCHEDULE = "SetupSchedule";
+    private static final String TAG_SETUP_RESCHEDULE = "SetupSchedule";
 
     public static final String EXTRA_SCHEDULE_CHECKIN = "ScheduleCheckin";
     public static final String EXTRA_RESCHEDULE_CHECKIN = "RescheduleCheckin";
@@ -61,25 +62,27 @@ public class ScheduleService extends LifecycleService {
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                    // Notifica o usuário que o checkin foi feito
                    // Chama a função que agenda o próximo checkin
+                   // Cancela o alarme de verificação do reagendamento se o worker possuir TAG_SETUP_RESCHEDULE
                 }
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
                     Data data = workInfo.getOutputData();
+                    Integer checkinId = data.getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+
                     if(data.getBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, false)) {
+                        // cria um alarme de verificação para o tempo limite do checkin,
+                        // notifica que o checkin não foi feito pois não teve conexão
                         // chama o worker novamente
-                        // cria um alarme de verificação para o tempo limite do checkin
-                        //notifica que o checkin não foi feito pois não teve conexão
+                        postCheckin(checkinId, TAG_SETUP_RESCHEDULE, true);
                     }
-                }
-                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
-                    Data data = workInfo.getOutputData();
+
                     if(data.getBoolean(PostCheckinWorker.ERROR_TIME_LIMIT_EXCEEDED, false)) {
+                        // Notifica que o checkin não pode ser feito pois passou do horário
                         handleSchedule();
                     }
-                }
-                if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
-                    Data data = workInfo.getOutputData();
+
                     if(data.getBoolean(PostCheckinWorker.ERROR_POST_FAILURE, false)) {
                         Log.i(TAG, "Falha ao fazer checkin, a requisição do checkin falhou.");
+                        // Agenda próximo checkin ou reagenda dependendo do erro
                     }
                 }
             }
@@ -91,8 +94,12 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "Alarm initiated " + intent.toString());
 
         if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
-            postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_CHECKIN_ID, 0));
+            postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_CHECKIN_ID, 0), TAG_SETUP_SCHEDULE);
         }
+
+        // TODO: 29/08/2019 Registra comando para cancelar o worker que está aguardando a conexão ser habilitada.
+        // TODO: e cria uma notificação informando que o checkin não foi feito pois não teve conexão e o tempo limite foi excedido
+        // TODO: Agenda o próximo checkin
 
         return START_NOT_STICKY;
     }
@@ -184,7 +191,7 @@ public class ScheduleService extends LifecycleService {
                             PendingIntent pendingIntent = checkinService.createPendingIntentAlarmCheckin(checkin.getId(), EXTRA_SCHEDULE_CHECKIN);
                             checkinService.createCheckinAlarm(diffSeconds, pendingIntent);
                         } else {
-                            postCheckin(checkin.getId());
+                            postCheckin(checkin.getId(), TAG_SETUP_SCHEDULE);
                         }
 
                     } else {
@@ -243,11 +250,11 @@ public class ScheduleService extends LifecycleService {
         workManager.getWorkInfoByIdLiveData(getCheckin.getId()).observe(this, workerObserver);
     }
 
-    private void postCheckin(int id) {
-        postCheckin(id, false);
+    private void postCheckin(int id, String tag) {
+        postCheckin(id, tag,false);
     }
 
-    private void postCheckin(int id, Boolean networkRequired) {
+    private void postCheckin(int id, String tag, Boolean networkRequired) {
         Data.Builder builder = new Data.Builder();
 
         builder.putInt(PostCheckinWorker.PARAM_CHECKIN_ID, id);
@@ -260,7 +267,7 @@ public class ScheduleService extends LifecycleService {
 
         OneTimeWorkRequest.Builder getCheckinBuilder = new OneTimeWorkRequest.Builder(PostCheckinWorker.class)
                 .setInputData(data)
-                .addTag(PostCheckinWorker.TAG);
+                .addTag(tag);
 
         if (networkRequired)
             getCheckinBuilder.setConstraints(constraints);
