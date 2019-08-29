@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.constants.PreferencesConstants;
 import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.Date;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
@@ -35,6 +36,8 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+
+import static com.alienonwork.crossfitcheckin.services.AppServices.isSettingsValid;
 
 public class ScheduleService extends LifecycleService {
 
@@ -119,9 +122,9 @@ public class ScheduleService extends LifecycleService {
     }
 
     public void handleSchedule() {
-        if (canSchedule()) {
+        if (isSettingsValid(getApplicationContext())) {
             CheckinService checkinService = new CheckinService(getApplicationContext());
-            //has checkin scheduled? is not valid?
+            // has checkin scheduled? is not valid?
             // cancel actions
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -202,24 +205,6 @@ public class ScheduleService extends LifecycleService {
                 }
             }
         }
-    }
-
-    private boolean canSchedule() {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean autoCheckinEnabled = sharedPref.getBoolean(getApplicationContext().getString(R.string.pref_auto_checkin_enabled), false);
-        Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-        String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
-
-        if (!autoCheckinEnabled)
-            return false;
-
-        if (userId == 0)
-            return false;
-
-        if (token.isEmpty())
-            return false;
-
-        return true;
     }
 
     private void getCheckinList(Pair<LocalDate, LocalDate> localDatePair, @Nullable boolean setupSchedule) {

@@ -9,6 +9,7 @@ import android.util.Pair;
 
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.constants.CheckinStatus;
+import com.alienonwork.crossfitcheckin.constants.PreferencesConstants;
 import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.CheckinHelper;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
@@ -75,10 +76,10 @@ public class PostCheckinWorker extends Worker {
 
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-                String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
+                String token = sharedPref.getString(PreferencesConstants.PREF_TOKEN, "");
                 String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
 
-                Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
+                Integer userId = sharedPref.getInt(PreferencesConstants.PREF_USER_ID, 0);
 
                 Schedule schedule = CheckinDatabaseAccessor
                         .getInstance(getApplicationContext())
@@ -121,10 +122,10 @@ public class PostCheckinWorker extends Worker {
     private Pair<Boolean, HashMap<String, String>> isAbleToPostCheckin() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
         Boolean autoCheckinEnabled = sharedPref.getBoolean(getApplicationContext().getString(R.string.pref_auto_checkin_enabled), false);
-        Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-        String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
+        Integer userId = sharedPref.getInt(PreferencesConstants.PREF_USER_ID, 0);
+        String token = sharedPref.getString(PreferencesConstants.PREF_TOKEN, "");
         String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
-        Integer scheduleId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+        Integer checkinId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -144,7 +145,7 @@ public class PostCheckinWorker extends Worker {
             errors.put(CheckinHelper.ERROR_INVALID_URL, "URL inválida.");
         }
 
-        if (scheduleId == 0) {
+        if (checkinId == 0) {
             errors.put(PostCheckinWorker.ERROR_INVALID_SCHEDULE_ID, "Código do checkin não informado.");
         }
         return new Pair(errors.size() == 0, errors);

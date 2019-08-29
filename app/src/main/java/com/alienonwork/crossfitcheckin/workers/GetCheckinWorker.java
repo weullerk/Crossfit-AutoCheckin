@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.constants.PreferencesConstants;
 import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
 import com.alienonwork.crossfitcheckin.helpers.CheckinHelper;
 import com.alienonwork.crossfitcheckin.network.WodEngageApi;
@@ -61,8 +62,8 @@ public class GetCheckinWorker extends Worker {
                 String dateBegin = data.getString(GetCheckinWorker.PARAM_DATE_BEGIN);
                 String dateEnd = data.getString(GetCheckinWorker.PARAM_DATE_END);
 
-                Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-                String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
+                Integer userId = sharedPref.getInt(PreferencesConstants.PREF_USER_ID, 0);
+                String token = sharedPref.getString(PreferencesConstants.PREF_TOKEN, "");
 
                 String urlGetCheckin = String.format(mContext.getString(R.string.wodengage_get_checkin), dateBegin, dateEnd, userId);
                 String url = mContext.getString(R.string.wodengage_api_host) + urlGetCheckin;
@@ -115,7 +116,7 @@ public class GetCheckinWorker extends Worker {
 
                         if (apiClassLengthChanged > 0) {
                             SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
-                            sharedPrefEditor.putBoolean(SettingsFragment.PREF_MODIFIED_CLASS, true);
+                            sharedPrefEditor.putBoolean(PreferencesConstants.PREF_MODIFIED_CLASS, true);
                             sharedPrefEditor.commit();
                         }
                     }
@@ -140,8 +141,8 @@ public class GetCheckinWorker extends Worker {
     private Pair<Boolean, HashMap<String, String>> isAbleToGetCheckin() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
         Boolean autoCheckinEnabled = sharedPref.getBoolean(mContext.getString(R.string.pref_auto_checkin_enabled), false);
-        Integer userId = sharedPref.getInt(SettingsFragment.PREF_USER_ID, 0);
-        String token = sharedPref.getString(SettingsFragment.PREF_TOKEN, "");
+        Integer userId = sharedPref.getInt(PreferencesConstants.PREF_USER_ID, 0);
+        String token = sharedPref.getString(PreferencesConstants.PREF_TOKEN, "");
         String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_get_checkin);
         String dateBegin = mWorkerParameters.getInputData().getString(GetCheckinWorker.PARAM_DATE_BEGIN);
         String dateEnd = mWorkerParameters.getInputData().getString(GetCheckinWorker.PARAM_DATE_END);

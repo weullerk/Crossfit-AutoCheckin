@@ -76,7 +76,5 @@ public class ScheduleFragment extends Fragment {
                 }
             }
         });
-
-        scheduleViewModel.scheduleCheckin();
     }
 }

@@ -38,24 +38,4 @@ public class ScheduleViewModel extends AndroidViewModel {
     public void loadSchedules() {
         GetCheckinWorker.create(Date.getFirstAndLastDayOfCurrentWeek(null));
     }
-
-    public void scheduleCheckin() {
-        if (postCheckinLiveData == null) {
-            postCheckinLiveData = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(PostCheckinWorker.TAG);
-            postCheckinLiveData.observe(getApplication(), new Observer<List<WorkInfo>>() {
-                @Override
-                public void onChanged(List<WorkInfo> workInfos) {
-                    if (workInfos.size() > 0) {
-                        WorkInfo workInfo = workInfos.get(0);
-                        if (workInfo.getState().isFinished()) {
-
-                        }
-                    }
-                }
-            });
-        }
-        if (postCheckinLiveData.getValue().size() == 0) {
-            // TODO: 17/07/2019 validate and schedule next checkin
-        }
-    }
 }
