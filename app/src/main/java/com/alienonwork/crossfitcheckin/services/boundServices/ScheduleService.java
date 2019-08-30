@@ -9,8 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alienonwork.crossfitcheckin.R;
-import com.alienonwork.crossfitcheckin.constants.PreferencesConstants;
-import com.alienonwork.crossfitcheckin.fragments.SettingsFragment;
+import com.alienonwork.crossfitcheckin.constants.CheckinStatus;
 import com.alienonwork.crossfitcheckin.helpers.Date;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
@@ -20,6 +19,7 @@ import com.alienonwork.crossfitcheckin.services.CheckinService;
 import com.alienonwork.crossfitcheckin.workers.GetCheckinWorker;
 import com.alienonwork.crossfitcheckin.workers.PostCheckinWorker;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.OffsetTime;
@@ -121,78 +121,42 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "ScheduleService destroyed");
     }
 
+    // TODO: 30/08/2019
+    // has checkin scheduled?
+    // is not valid? are in time, is worker or alarm up
+    // cancel actions if are something invalid*
+    // schedule if are valid and don't have nothing scheduled
     public void handleSchedule() {
         if (isSettingsValid(getApplicationContext())) {
             CheckinService checkinService = new CheckinService(getApplicationContext());
-            // has checkin scheduled? is not valid?
-            // cancel actions
-
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+            Checkin lastCheckin = checkinService.getLastCheckinMade();
+            Schedule lastCheckinSchedule = checkinService.getSchedule(lastCheckin.getScheduleId());
+
             Integer checkinTimeLimit = sharedPref.getInt(getApplication().getString(R.string.pref_checkin_limit), Integer.parseInt(getApplication().getString(R.string.pref_checkin_limit_default)));
+            OffsetDateTime startDateTime = selectStartDateTime(lastCheckinSchedule, checkinTimeLimit);
 
-            Schedule lastCheckin = checkinService.findLastScheduleWithCheckinMade();
+            List<Agenda> agenda = checkinService.listAgenda();
 
-            OffsetDateTime startDateTime = OffsetDateTime.now();
+            if (agenda.size() > 0) {
 
-            OffsetTime todayTime;
-
-            if (lastCheckin != null && startDateTime.isBefore(lastCheckin.getDatetimeUTC())) {
-                startDateTime = lastCheckin.getDatetimeUTC();
-                todayTime = startDateTime.toOffsetTime();
-            } else {
-                todayTime = startDateTime.toOffsetTime();
-                todayTime.plusMinutes(checkinTimeLimit + 1);
-            }
-
-            Integer todayDayOfWeek = startDateTime.getDayOfWeek().getValue();
-
-            List<Agenda> agendas = CheckinDatabaseAccessor
-                    .getInstance(getApplicationContext())
-                    .agendaDAO()
-                    .listAgenda();
-
-            if (agendas.size() > 0) {
-
-                List<Schedule> nextSchedules = CheckinDatabaseAccessor
-                        .getInstance(getApplicationContext())
-                        .scheduleDAO()
-                        .listNextSchedules(startDateTime);
+                List<Schedule> nextSchedules = checkinService.listNextSchedules(startDateTime);
 
                 if (nextSchedules.size() > 0) {
-                    Agenda validAgenda = null;
-                    Schedule nextSchedule = null;
-
-                    for (Agenda agenda : agendas) {
-                        if (validAgenda == null
-                            && ((agenda.getDayOfWeek() == todayDayOfWeek && agenda.getTime().isAfter(todayTime))
-                                || agenda.getDayOfWeek() > todayDayOfWeek)) {
-                            validAgenda = agenda;
-                        }
-                    }
-
-                    if (validAgenda == null) validAgenda = agendas.get(0);
-
-                    for (Schedule schedule : nextSchedules) {
-                        if (nextSchedule == null
-                                && schedule.getClassName() == validAgenda.getName()
-                                && schedule.getHour().isEqual(validAgenda.getTime())
-                                && schedule.getDayOfWeek() == validAgenda.getDayOfWeek()) {
-                            nextSchedule = schedule;
-                        }
-                    }
+                    Schedule nextSchedule = selectNextScheduleFromAgenda(nextSchedules, agenda, startDateTime);
 
                     if (nextSchedule != null) {
                         Checkin checkin = checkinService.createCheckinForSchedule(nextSchedule);
 
-                        Integer anticipated = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
-                        OffsetDateTime dateTimeNextSchedule = nextSchedule.getDatetimeUTC();
+                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
 
-                        OffsetDateTime dateTimeNextScheduleAnticipate = dateTimeNextSchedule.minusHours(anticipated.longValue());
+                        OffsetDateTime dateTimeToRunCheckin = nextSchedule.getDatetimeUTC().minusHours(timeBeforeScheduleToRunCheckin.longValue());
+                        Long secondsUntilCheckinRun = dateTimeToRunCheckin.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
 
-                        Long diffSeconds = dateTimeNextScheduleAnticipate.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
-                        if (diffSeconds > 0) {
+                        if (secondsUntilCheckinRun > 0) {
                             PendingIntent pendingIntent = checkinService.createPendingIntentAlarmCheckin(checkin.getId(), EXTRA_SCHEDULE_CHECKIN);
-                            checkinService.createCheckinAlarm(diffSeconds, pendingIntent);
+                            checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
                         } else {
                             postCheckin(checkin.getId(), TAG_SETUP_SCHEDULE);
                         }
@@ -205,6 +169,46 @@ public class ScheduleService extends LifecycleService {
                 }
             }
         }
+    }
+
+    private OffsetDateTime selectStartDateTime(Schedule schedule, Integer timeLimitUntilCheckin) {
+        OffsetDateTime startDateTime = OffsetDateTime.now();
+
+        if (schedule != null && schedule.getDatetimeUTC().isAfter(startDateTime)) {
+            startDateTime = schedule.getDatetimeUTC();
+        } else {
+            startDateTime.plus(Duration.ofMinutes(timeLimitUntilCheckin));
+        }
+
+        return startDateTime;
+    }
+
+    private Schedule selectNextScheduleFromAgenda(List<Schedule> schedules, List<Agenda> agendas, OffsetDateTime startDateTime) {
+        Agenda validAgenda = null;
+        Schedule nextSchedule = null;
+        OffsetTime startTime = startDateTime.toOffsetTime();
+        Integer startDayOfWeek = startDateTime.getDayOfWeek().getValue();
+
+        for (Agenda agenda : agendas) {
+            if (validAgenda == null
+                    && ((agenda.getDayOfWeek().equals(startDayOfWeek) && agenda.getTime().isAfter(startTime))
+                    || agenda.getDayOfWeek() > startDayOfWeek)) {
+                validAgenda = agenda;
+            }
+        }
+
+        if (validAgenda == null) validAgenda = agendas.get(0);
+
+        for (Schedule schedule : schedules) {
+            if (nextSchedule == null
+                    && schedule.getClassName().equals(validAgenda.getName())
+                    && schedule.getHour().isEqual(validAgenda.getTime())
+                    && schedule.getDayOfWeek().equals(validAgenda.getDayOfWeek())) {
+                nextSchedule = schedule;
+            }
+        }
+
+        return nextSchedule;
     }
 
     private void getCheckinList(Pair<LocalDate, LocalDate> localDatePair, @Nullable boolean setupSchedule) {

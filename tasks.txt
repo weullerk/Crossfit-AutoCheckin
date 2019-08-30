@@ -1,6 +1,6 @@
-- Refatorar handle schedule
+- Refatorar handle schedule - DONE
 	- Função que retorna ultimo checkin - DONE
-	- Função que calcula o datetime base para buscar as proxímas turmas
+	- Função que calcula o datetime base para buscar as proxímas turmas - DONE
 	- Usar id do checkin e não da classe para criar worker - DONE
 	- Criar checkin - DONE
 - Criar validação de checkin agendado

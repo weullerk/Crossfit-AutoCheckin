@@ -9,12 +9,15 @@ import android.content.Context;
 
 import com.alienonwork.crossfitcheckin.constants.CheckinStatus;
 import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
+import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Checkin;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
 import com.alienonwork.crossfitcheckin.services.boundServices.ScheduleService;
 import com.alienonwork.crossfitcheckin.workers.PostCheckinWorker;
 
 import org.threeten.bp.OffsetDateTime;
+
+import java.util.List;
 
 public class CheckinService {
 
@@ -48,20 +51,34 @@ public class CheckinService {
                 .getCheckin(id);
     }
 
-    public Schedule findLastScheduleWithCheckinMade() {
-        Checkin lastCheckin = CheckinDatabaseAccessor
+    public Checkin getLastCheckinMade() {
+        return CheckinDatabaseAccessor
                 .getInstance(mContext)
                 .checkinDAO()
                 .getLastCheckinMade();
+    }
 
-        if (lastCheckin != null) {
-            return CheckinDatabaseAccessor
-                    .getInstance(mContext)
-                    .scheduleDAO()
-                    .getSchedule(lastCheckin.getScheduleId());
-        }
+    public Schedule getSchedule(Integer id) {
+        return CheckinDatabaseAccessor
+                .getInstance(mContext)
+                .scheduleDAO()
+                .getSchedule(id);
+    }
 
-        return null;
+
+
+    public List<Agenda> listAgenda() {
+        return CheckinDatabaseAccessor
+                .getInstance(mContext)
+                .agendaDAO()
+                .listAgenda();
+    }
+
+    public List<Schedule> listNextSchedules(OffsetDateTime datetime) {
+        return CheckinDatabaseAccessor
+                .getInstance(mContext)
+                .scheduleDAO()
+                .listNextSchedules(datetime);
     }
 
     public PendingIntent createPendingIntentAlarmCheckin(Integer checkinId, String extra) {
