@@ -21,6 +21,5 @@
         android:dialogTitle="@string/pref_checkin_limit_title"
         android:entryValues="@array/checkin_limit"
         android:defaultValue="@string/pref_checkin_limit_default"
-        android
         />
 </PreferenceScreen>

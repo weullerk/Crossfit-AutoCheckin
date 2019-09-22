@@ -149,7 +149,7 @@ public class ScheduleService extends LifecycleService {
                     if (nextSchedule != null) {
                         Checkin checkin = checkinService.createCheckinForSchedule(nextSchedule);
 
-                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_realization), 0);
+                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_anticipate), 0);
 
                         OffsetDateTime dateTimeToRunCheckin = nextSchedule.getDatetimeUTC().minusHours(timeBeforeScheduleToRunCheckin.longValue());
                         Long secondsUntilCheckinRun = dateTimeToRunCheckin.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
@@ -250,16 +250,17 @@ public class ScheduleService extends LifecycleService {
 
         Data data = builder.build();
 
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
         OneTimeWorkRequest.Builder getCheckinBuilder = new OneTimeWorkRequest.Builder(PostCheckinWorker.class)
                 .setInputData(data)
                 .addTag(tag);
 
-        if (networkRequired)
+        if (networkRequired) {
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+
             getCheckinBuilder.setConstraints(constraints);
+        }
 
         OneTimeWorkRequest getCheckin = getCheckinBuilder.build();
 
