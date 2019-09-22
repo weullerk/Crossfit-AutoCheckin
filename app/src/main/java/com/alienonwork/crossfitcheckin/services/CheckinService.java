@@ -65,7 +65,14 @@ public class CheckinService {
                 .getSchedule(id);
     }
 
+    public Schedule getScheduleByCheckinId(Integer id) {
+        Checkin checkin = getCheckin(id);
 
+        return CheckinDatabaseAccessor
+                .getInstance(mContext)
+                .scheduleDAO()
+                .getSchedule(checkin.getScheduleId());
+    }
 
     public List<Agenda> listAgenda() {
         return CheckinDatabaseAccessor
@@ -81,7 +88,7 @@ public class CheckinService {
                 .listNextSchedules(datetime);
     }
 
-    public PendingIntent createPendingIntentAlarmCheckin(Integer checkinId, String extra) {
+    public PendingIntent createPendingIntentCheckin(Integer checkinId, String extra) {
         Intent intent = new Intent(mContext, ScheduleService.class);
         intent.putExtra(extra, true);
         intent.putExtra(PostCheckinWorker.PARAM_CHECKIN_ID, checkinId);

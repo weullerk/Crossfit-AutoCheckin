@@ -9,9 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alienonwork.crossfitcheckin.R;
-import com.alienonwork.crossfitcheckin.constants.CheckinStatus;
 import com.alienonwork.crossfitcheckin.helpers.Date;
-import com.alienonwork.crossfitcheckin.repository.CheckinDatabaseAccessor;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Checkin;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
@@ -37,7 +35,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import static com.alienonwork.crossfitcheckin.services.AppServices.isSettingsValid;
+import static com.alienonwork.crossfitcheckin.services.AppService.isSettingsValid;
 
 public class ScheduleService extends LifecycleService {
 
@@ -46,10 +44,11 @@ public class ScheduleService extends LifecycleService {
     private static final String TAG_SETUP_RESCHEDULE = "SetupSchedule";
 
     public static final String EXTRA_SCHEDULE_CHECKIN = "ScheduleCheckin";
-    public static final String EXTRA_RESCHEDULE_CHECKIN = "RescheduleCheckin";
+    public static final String EXTRA_RESCHEDULE_CHECKIN = "ReScheduleCheckin";
 
     public final IBinder binder = new ScheduleServiceBinder();
 
+    // TODO: 22/09/2019 Refactor actions on this observers
     private Observer<WorkInfo> workerObserver = new Observer<WorkInfo>() {
         @Override
         public void onChanged(WorkInfo workInfo) {
@@ -72,9 +71,18 @@ public class ScheduleService extends LifecycleService {
                     Integer checkinId = data.getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
 
                     if(data.getBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, false)) {
-                        // cria um alarme de verificação para o tempo limite do checkin,
-                        // notifica que o checkin não foi feito pois não teve conexão
-                        // chama o worker novamente
+                        CheckinService checkinService = new CheckinService(getApplicationContext());
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        Schedule schedule = checkinService.getScheduleByCheckinId(checkinId);
+
+                        PendingIntent pendingIntent = checkinService.createPendingIntentCheckin(checkinId, EXTRA_RESCHEDULE_CHECKIN);
+
+                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_anticipate), 0);
+                        Long secondsUntilCheckinRun = secondsUntilCheckin(schedule, timeBeforeScheduleToRunCheckin);
+
+                        checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
+
+                        // TODO: notifica que o checkin não foi feito pois não teve conexão
                         postCheckin(checkinId, TAG_SETUP_RESCHEDULE, true);
                     }
 
@@ -150,12 +158,10 @@ public class ScheduleService extends LifecycleService {
                         Checkin checkin = checkinService.createCheckinForSchedule(nextSchedule);
 
                         Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_anticipate), 0);
-
-                        OffsetDateTime dateTimeToRunCheckin = nextSchedule.getDatetimeUTC().minusHours(timeBeforeScheduleToRunCheckin.longValue());
-                        Long secondsUntilCheckinRun = dateTimeToRunCheckin.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
+                        Long secondsUntilCheckinRun = secondsUntilCheckin(nextSchedule, timeBeforeScheduleToRunCheckin);
 
                         if (secondsUntilCheckinRun > 0) {
-                            PendingIntent pendingIntent = checkinService.createPendingIntentAlarmCheckin(checkin.getId(), EXTRA_SCHEDULE_CHECKIN);
+                            PendingIntent pendingIntent = checkinService.createPendingIntentCheckin(checkin.getId(), EXTRA_SCHEDULE_CHECKIN);
                             checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
                         } else {
                             postCheckin(checkin.getId(), TAG_SETUP_SCHEDULE);
@@ -268,6 +274,11 @@ public class ScheduleService extends LifecycleService {
 
         workManager.enqueue(getCheckin);
         workManager.getWorkInfoByIdLiveData(getCheckin.getId()).observe(this, workerObserver);
+    }
+
+    private Long secondsUntilCheckin(Schedule schedule, Integer timeToAnticipateCheckin) {
+        OffsetDateTime dateTimeToRunCheckin = schedule.getDatetimeUTC().minusHours(timeToAnticipateCheckin);
+        return  dateTimeToRunCheckin.toEpochSecond() - OffsetDateTime.now().toEpochSecond();
     }
 
     public class ScheduleServiceBinder extends Binder {

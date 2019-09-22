@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import com.alienonwork.crossfitcheckin.R;
 import com.alienonwork.crossfitcheckin.constants.PreferencesConstants;
 
-public class AppServices {
+public class AppService {
 
     public static boolean isSettingsValid(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);

@@ -9,3 +9,4 @@
 - Alterações no onCreate
 	- Listar somente as classes da semana
 - Recriar alarme se tiver algum agendado e acontecer reboot
+- Ao reiniciar, reagendar checkin no status reeschedule
