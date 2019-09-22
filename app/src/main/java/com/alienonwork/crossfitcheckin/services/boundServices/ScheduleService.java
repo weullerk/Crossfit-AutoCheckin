@@ -62,10 +62,12 @@ public class ScheduleService extends LifecycleService {
 
             if (workInfo.getTags().contains(PostCheckinWorker.TAG)) {
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                   // Notifica o usuário que o checkin foi feito
-                   // Chama a função que agenda o próximo checkin
-                   // Cancela o alarme de verificação do reagendamento se o worker possuir TAG_SETUP_RESCHEDULE
+                    // Notifica o usuário que o checkin foi feito
+                    // Cancela o alarme de verificação do reagendamento se o worker possuir TAG_SETUP_RESCHEDULE
+                    // TODO: 22/09/2019 create function to cancel a active alarm
+                    handleSchedule(); // Chama a função que agenda o próximo checkin
                 }
+
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
                     Data data = workInfo.getOutputData();
                     Integer checkinId = data.getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
@@ -102,15 +104,16 @@ public class ScheduleService extends LifecycleService {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i(TAG, "Alarm initiated " + intent.toString());
 
         if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
             postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_CHECKIN_ID, 0), TAG_SETUP_SCHEDULE);
         }
 
-        // TODO: 29/08/2019 Registra comando para cancelar o worker que está aguardando a conexão ser habilitada.
-        // TODO: e cria uma notificação informando que o checkin não foi feito pois não teve conexão e o tempo limite foi excedido
-        // TODO: Agenda o próximo checkin
+        if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
+            // TODO: 22/09/2019 cancelar o worker que está aguardando a conexão ser habilitada.
+            // TODO: 22/09/2019 notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite foi excedido
+            // TODO: 22/09/2019 agenda o próximo checkin
+        }
 
         return START_NOT_STICKY;
     }
