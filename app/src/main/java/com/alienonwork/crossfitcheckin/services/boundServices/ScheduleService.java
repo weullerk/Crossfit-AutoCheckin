@@ -41,7 +41,7 @@ public class ScheduleService extends LifecycleService {
 
     public static final String TAG = "ScheduleService";
     private static final String TAG_SETUP_SCHEDULE = "SetupSchedule";
-    private static final String TAG_SETUP_RESCHEDULE = "SetupSchedule";
+    private static final String TAG_SETUP_RESCHEDULE = "SetupReSchedule";
 
     public static final String EXTRA_SCHEDULE_CHECKIN = "ScheduleCheckin";
     public static final String EXTRA_RESCHEDULE_CHECKIN = "ReScheduleCheckin";
@@ -61,18 +61,21 @@ public class ScheduleService extends LifecycleService {
             }
 
             if (workInfo.getTags().contains(PostCheckinWorker.TAG)) {
+                Data data = workInfo.getOutputData();
+                Integer checkinId = data.getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                     // Notifica o usuário que o checkin foi feito
-                    // Cancela o alarme de verificação do reagendamento se o worker possuir TAG_SETUP_RESCHEDULE
-                    // TODO: 22/09/2019 create function to cancel a active alarm
-                    handleSchedule(); // Chama a função que agenda o próximo checkin
+                    if (workInfo.getTags().contains(TAG_SETUP_RESCHEDULE)) {
+                        CheckinService checkinService = new CheckinService(getApplicationContext());
+                        PendingIntent pendingIntent = checkinService.createPendingIntentCheckin(checkinId, EXTRA_RESCHEDULE_CHECKIN);
+                        checkinService.cancelCheckinAlarm(pendingIntent);
+                    }
+                    handleSchedule();
                 }
 
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.FAILED) {
-                    Data data = workInfo.getOutputData();
-                    Integer checkinId = data.getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
-
-                    if(data.getBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, false)) {
+                    if (data.getBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, false)) {
                         CheckinService checkinService = new CheckinService(getApplicationContext());
                         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         Schedule schedule = checkinService.getScheduleByCheckinId(checkinId);
@@ -84,7 +87,7 @@ public class ScheduleService extends LifecycleService {
 
                         checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
 
-                        // TODO: notifica que o checkin não foi feito pois não teve conexão
+                        // TODO: Criar notificação que o checkin não foi feito pois não houve conexão
                         postCheckin(checkinId, TAG_SETUP_RESCHEDULE, true);
                     }
 
@@ -109,10 +112,11 @@ public class ScheduleService extends LifecycleService {
             postCheckin(intent.getIntExtra(PostCheckinWorker.PARAM_CHECKIN_ID, 0), TAG_SETUP_SCHEDULE);
         }
 
-        if (intent.getBooleanExtra(ScheduleService.EXTRA_SCHEDULE_CHECKIN, false)) {
-            // TODO: 22/09/2019 cancelar o worker que está aguardando a conexão ser habilitada.
-            // TODO: 22/09/2019 notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite foi excedido
-            // TODO: 22/09/2019 agenda o próximo checkin
+        if (intent.getBooleanExtra(ScheduleService.EXTRA_RESCHEDULE_CHECKIN, false)) {
+            WorkManager workManager = WorkManager.getInstance(getApplicationContext());
+            workManager.cancelAllWorkByTag(TAG_SETUP_RESCHEDULE);
+            // TODO: 22/09/2019 notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite ser excedido
+            handleSchedule();
         }
 
         return START_NOT_STICKY;
@@ -132,11 +136,6 @@ public class ScheduleService extends LifecycleService {
         Log.i(TAG, "ScheduleService destroyed");
     }
 
-    // TODO: 30/08/2019
-    // has checkin scheduled?
-    // is not valid? are in time, is worker or alarm up
-    // cancel actions if are something invalid*
-    // schedule if are valid and don't have nothing scheduled
     public void handleSchedule() {
         if (isSettingsValid(getApplicationContext())) {
             CheckinService checkinService = new CheckinService(getApplicationContext());
