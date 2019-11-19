@@ -31,6 +31,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import okhttp3.Response;
 
+import static com.alienonwork.crossfitcheckin.util.Network.hasConnectionEnabled;
+
 public class PostCheckinWorker extends Worker {
     public static final String TAG = "post_checkin";
 
@@ -64,7 +66,7 @@ public class PostCheckinWorker extends Worker {
 
                 Integer scheduleId = checkin.getScheduleId();
 
-                if (!hasConnectionEnabled()) {
+                if (!hasConnectionEnabled(mContext)) {
                     outputData.putBoolean(PostCheckinWorker.ERROR_NO_CONNECTION, true);
                     return Result.failure(outputData.build());
                 }
@@ -149,15 +151,6 @@ public class PostCheckinWorker extends Worker {
             errors.put(PostCheckinWorker.ERROR_INVALID_SCHEDULE_ID, "Código do checkin não informado.");
         }
         return new Pair(errors.size() == 0, errors);
-    }
-
-    private boolean hasConnectionEnabled() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return connectivityManager.getActiveNetwork() != null;
-        } else {
-            return connectivityManager.getActiveNetworkInfo() != null;
-        }
     }
 
     private boolean hasTimeToCheckin(int id) {

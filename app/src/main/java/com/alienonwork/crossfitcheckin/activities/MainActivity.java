@@ -6,7 +6,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.MenuItem;
 
 import com.alienonwork.crossfitcheckin.R;
@@ -16,7 +18,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
+import static com.alienonwork.crossfitcheckin.util.Network.hasConnectionEnabled;
+
 public class MainActivity extends AppCompatActivity {
+
+    public final String CHECKIN_FAILED_DUE_NETWORK_EXTRA = "CHECKIN_FAILED_DUE_NETWORK_EXTRA";
 
     NavController mNavController;
 
@@ -51,4 +57,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(mNavController.getCurrentDestination().getId());
         bottomNavigationView.setOnNavigationItemSelectedListener(mNavigationItemSelectedListener);
     }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.hasExtra(CHECKIN_FAILED_DUE_NETWORK_EXTRA)) {
+            if (!hasConnectionEnabled(getApplicationContext())) {
+                Intent intentNewWorkSettings = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                startActivity(intentNewWorkSettings);
+            }
+        }
+    }
+
 }
