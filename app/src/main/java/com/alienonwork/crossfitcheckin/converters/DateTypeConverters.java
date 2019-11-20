@@ -28,11 +28,13 @@ public class DateTypeConverters {
         return timestamp == null ? null : timestamp.toEpochMilli();
     }
 
-    public static OffsetTime fromStringToTime(String time) {
+    @TypeConverter
+    public static OffsetTime fromStringToOffsetTime(String time) {
         return time == null ? null : OffsetTime.parse(time);
     }
 
-    public static String OffsetTime(OffsetTime time) {
+    @TypeConverter
+    public static String fromOffsetTimeToString(OffsetTime time) {
         return time == null ? null : time.toString();
     }
 }

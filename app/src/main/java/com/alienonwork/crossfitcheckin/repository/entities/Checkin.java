@@ -3,13 +3,14 @@ package com.alienonwork.crossfitcheckin.repository.entities;
 import org.threeten.bp.OffsetDateTime;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity
 public class Checkin {
 
     @PrimaryKey(autoGenerate = true)
-    Integer id;
+    long id;
     Integer scheduleId;
     Integer status;
     OffsetDateTime createdAt;
@@ -17,17 +18,18 @@ public class Checkin {
     public Checkin() {
     }
 
+    @Ignore
     public Checkin(Integer scheduleId, Integer status, OffsetDateTime createdAt) {
         this.scheduleId = scheduleId;
         this.status = status;
         this.createdAt = createdAt;
     }
 
-    public Integer getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
