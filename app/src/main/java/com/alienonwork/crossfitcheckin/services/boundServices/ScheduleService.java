@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alienonwork.crossfitcheckin.R;
+import com.alienonwork.crossfitcheckin.helpers.NotificationHelper;
 import com.alienonwork.crossfitcheckin.util.Date;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Checkin;
@@ -67,11 +68,18 @@ public class ScheduleService extends LifecycleService {
 
                 if (workInfo.getState().isFinished() && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                     // Notifica o usuário que o checkin foi feito
+                    NotificationHelper notification = new NotificationHelper.Builder(getApplicationContext())
+                            .withTitle("Checkin realizado")
+                            .withText("Checkin foi feito com sucesso!")
+                            .build();
+                    notification.create();
+
                     if (workInfo.getTags().contains(TAG_SETUP_RESCHEDULE)) {
                         CheckinService checkinService = new CheckinService(getApplicationContext());
                         PendingIntent pendingIntent = checkinService.createPendingIntentCheckin(checkinId, EXTRA_RESCHEDULE_CHECKIN);
                         checkinService.cancelCheckinAlarm(pendingIntent);
                     }
+
                     handleSchedule();
                 }
 
@@ -88,12 +96,24 @@ public class ScheduleService extends LifecycleService {
 
                         checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
 
-                        // TODO: Criar notificação que o checkin não foi feito pois não houve conexão
                         postCheckin(checkinId, TAG_SETUP_RESCHEDULE, true);
+
+                        // Criar notificação que o checkin não foi feito pois não houve conexão
+                        NotificationHelper notification = new NotificationHelper.Builder(getApplicationContext())
+                                .withTitle("Falha ao realizar checkin")
+                                .withText("Checkin não foi feito pois não houve conexão com a internet!")
+                                .build();
+                        notification.create();
+
                     }
 
                     if(data.getBoolean(PostCheckinWorker.ERROR_TIME_LIMIT_EXCEEDED, false)) {
                         // Notifica que o checkin não pode ser feito pois passou do horário
+                        NotificationHelper notification = new NotificationHelper.Builder(getApplicationContext())
+                                .withTitle("Falha ao realizar checkin")
+                                .withText("Checkin não foi feito pois já passou do horario limite!")
+                                .build();
+                        notification.create();
                         handleSchedule();
                     }
 
@@ -116,7 +136,12 @@ public class ScheduleService extends LifecycleService {
         if (intent.getBooleanExtra(ScheduleService.EXTRA_RESCHEDULE_CHECKIN, false)) {
             WorkManager workManager = WorkManager.getInstance(getApplicationContext());
             workManager.cancelAllWorkByTag(TAG_SETUP_RESCHEDULE);
-            // TODO: 22/09/2019 notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite ser excedido
+            // notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite ser excedido
+            NotificationHelper notification = new NotificationHelper.Builder(getApplicationContext())
+                    .withTitle("Falha ao realizar checkin")
+                    .withText("Checkin não foi feito pois não houve conexão com a internet antes do tempo limite do checkin!")
+                    .build();
+            notification.create();
 
 
 
