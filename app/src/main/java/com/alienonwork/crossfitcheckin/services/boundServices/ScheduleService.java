@@ -26,6 +26,8 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import android.util.Pair;
+
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.Observer;
 import androidx.work.Constraints;
@@ -116,6 +118,9 @@ public class ScheduleService extends LifecycleService {
             WorkManager workManager = WorkManager.getInstance(getApplicationContext());
             workManager.cancelAllWorkByTag(TAG_SETUP_RESCHEDULE);
             // TODO: 22/09/2019 notifica o usuário informando que o checkin não foi feito pois não teve conexão antes do tempo limite ser excedido
+
+
+
             handleSchedule();
         }
 
