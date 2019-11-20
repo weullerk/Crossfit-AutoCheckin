@@ -9,7 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.alienonwork.crossfitcheckin.R;
-import com.alienonwork.crossfitcheckin.helpers.Date;
+import com.alienonwork.crossfitcheckin.util.Date;
 import com.alienonwork.crossfitcheckin.repository.entities.Agenda;
 import com.alienonwork.crossfitcheckin.repository.entities.Checkin;
 import com.alienonwork.crossfitcheckin.repository.entities.Schedule;
@@ -27,7 +27,6 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import android.util.Pair;
 
-import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.Observer;
 import androidx.work.Constraints;

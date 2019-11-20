@@ -1,4 +1,4 @@
-package com.alienonwork.crossfitcheckin.helpers;
+package com.alienonwork.crossfitcheckin.util;
 
 import android.util.Pair;
 
