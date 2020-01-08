@@ -58,8 +58,8 @@ public class PostCheckinWorker extends Worker {
         try {
             if (isAbleToPostCheckin().first) {
                 Data.Builder outputData = new Data.Builder();
-                Integer checkinId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
-                outputData.putInt(PostCheckinWorker.PARAM_CHECKIN_ID, checkinId);
+                Long checkinId = mWorkerParameters.getInputData().getLong(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+                outputData.putLong(PostCheckinWorker.PARAM_CHECKIN_ID, checkinId);
 
                 CheckinService checkinService = new CheckinService(mContext);
                 Checkin checkin = checkinService.getCheckin(checkinId);
@@ -127,7 +127,7 @@ public class PostCheckinWorker extends Worker {
         Integer userId = sharedPref.getInt(PreferencesConstants.PREF_USER_ID, 0);
         String token = sharedPref.getString(PreferencesConstants.PREF_TOKEN, "");
         String url = mContext.getString(R.string.wodengage_api_host) + mContext.getString(R.string.wodengage_post_checkin);
-        Integer checkinId = mWorkerParameters.getInputData().getInt(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
+        Long checkinId = mWorkerParameters.getInputData().getLong(PostCheckinWorker.PARAM_CHECKIN_ID, 0);
 
         HashMap<String, String> errors = new HashMap<>();
 

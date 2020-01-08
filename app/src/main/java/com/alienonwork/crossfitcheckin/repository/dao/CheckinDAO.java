@@ -18,14 +18,14 @@ import androidx.room.Update;
 public interface CheckinDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public Checkin createCheckin(Checkin checkin);
+    public long createCheckin(Checkin checkin);
 
     @Update
     public void saveCheckin(Checkin checkin);
 
-    @Query("SELECT * FROM Checkin ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM checkin ORDER BY id DESC LIMIT 1")
     public Checkin getLastCheckinMade();
 
-    @Query("SELECT * FROM Checkin WHERE id = :id")
-    public Checkin getCheckin(Integer id);
+    @Query("SELECT * FROM checkin WHERE id = :id")
+    public Checkin getCheckin(Long id);
 }

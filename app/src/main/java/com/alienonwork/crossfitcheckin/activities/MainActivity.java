@@ -26,9 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     NavController mNavController;
 
-    // Do request to enable network if it was not enabled and exit from activity
-    public final int REQUEST_CODE_CHECKIN_FAILURE_DUE_NETWORK = 1;
-
     BottomNavigationView.OnNavigationItemSelectedListener mNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {

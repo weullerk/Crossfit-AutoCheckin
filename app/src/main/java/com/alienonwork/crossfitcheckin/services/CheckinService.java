@@ -31,10 +31,14 @@ public class CheckinService {
         OffsetDateTime createdAt = OffsetDateTime.now();
         Checkin checkin = new Checkin(schedule.getId(), CheckinStatus.CREATED, createdAt);
 
-        return CheckinDatabaseAccessor
+        long checkinId = CheckinDatabaseAccessor
                 .getInstance(mContext)
                 .checkinDAO()
                 .createCheckin(checkin);
+
+        checkin.setId(checkinId);
+
+        return checkin;
     }
 
     public void saveCheckin(Checkin checkin) {
@@ -44,7 +48,7 @@ public class CheckinService {
                 .saveCheckin(checkin);
     }
 
-    public Checkin getCheckin(Integer id) {
+    public Checkin getCheckin(Long id) {
         return CheckinDatabaseAccessor
                 .getInstance(mContext)
                 .checkinDAO()
@@ -65,7 +69,7 @@ public class CheckinService {
                 .getSchedule(id);
     }
 
-    public Schedule getScheduleByCheckinId(Integer id) {
+    public Schedule getScheduleByCheckinId(Long id) {
         Checkin checkin = getCheckin(id);
 
         return CheckinDatabaseAccessor
@@ -88,7 +92,7 @@ public class CheckinService {
                 .listNextSchedules(datetime);
     }
 
-    public PendingIntent createPendingIntentCheckin(Integer checkinId, String extra) {
+    public PendingIntent createPendingIntentCheckin(Long checkinId, String extra) {
         Intent intent = new Intent(mContext, ScheduleService.class);
         intent.putExtra(extra, true);
         intent.putExtra(PostCheckinWorker.PARAM_CHECKIN_ID, checkinId);
