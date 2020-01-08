@@ -97,5 +97,5 @@ public class NotificationHelper {
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
-    public static class Builder() {}
+    public static class Builder {}
 }
