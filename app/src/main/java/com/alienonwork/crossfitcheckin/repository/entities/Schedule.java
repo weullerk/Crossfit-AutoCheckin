@@ -36,6 +36,8 @@ public class Schedule {
         return id;
     }
 
+    public void setId(Integer id) {this.id = id;}
+
     public Integer getClassId() { return classId; }
 
     public void setClassId(Integer classId) {
