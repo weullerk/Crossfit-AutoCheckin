@@ -8,5 +8,6 @@
 - Criar função para ler nome do pacote do appengage para pegar o id
 - Alterações no onCreate
 	- Listar somente as classes da semana
-- Recriar alarme se tiver algum agendado e acontecer reboot
-- Ao reiniciar, reagendar checkin no status reeschedule
+- Recriar alarme se tiver algum agendado e acontecer reboot - DONE
+- Ao reiniciar, reagendar checkin no status reeschedule - ??? Confirm
+- Fazer tela de config com as preferences funcional
