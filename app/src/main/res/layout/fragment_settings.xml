@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SettingsFragment">
 
-    <!-- TODO: Set preferences fragment -->
-    <TextView
+    <fragment
+        android:id="@+id/preferences_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/nav_settings" />
+        android:name="com.alienonwork.crossfitcheckin.fragments.SettingsFragment$PrefFragment" />
 
 </FrameLayout>

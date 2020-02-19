@@ -6,19 +6,23 @@
         android:summary="@string/pref_auto_checkin_enabled_summary"
         android:defaultValue="false"
         />
+
     <ListPreference
         android:key="@string/pref_checkin_anticipate"
         android:title="@string/pref_checkin_anticipate_title"
         android:summary="@string/pref_checkin_anticipate_summary"
         android:dialogTitle="@string/pref_checkin_anticipate_title"
+        android:entries="@array/checkin_anticipate_options"
         android:entryValues="@array/checkin_anticipate"
         android:defaultValue="@string/pref_checkin_anticipate_default"
         />
+
     <ListPreference
         android:key="@string/pref_checkin_limit"
         android:title="@string/pref_checkin_limit_title"
         android:summary="@string/pref_checkin_limit_summary"
         android:dialogTitle="@string/pref_checkin_limit_title"
+        android:entries="@array/checkin_limit_options"
         android:entryValues="@array/checkin_limit"
         android:defaultValue="@string/pref_checkin_limit_default"
         />

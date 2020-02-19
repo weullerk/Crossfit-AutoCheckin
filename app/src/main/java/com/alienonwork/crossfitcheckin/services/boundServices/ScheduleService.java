@@ -91,7 +91,7 @@ public class ScheduleService extends LifecycleService {
 
                         PendingIntent pendingIntent = checkinService.createPendingIntentCheckin(checkinId, EXTRA_RESCHEDULE_CHECKIN);
 
-                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_anticipate), 0);
+                        Integer timeBeforeScheduleToRunCheckin = Integer.parseInt(sharedPref.getString(getApplicationContext().getString(R.string.pref_checkin_anticipate), "0"));
                         Long secondsUntilCheckinRun = secondsUntilCheckin(schedule, timeBeforeScheduleToRunCheckin);
 
                         checkinService.createCheckinAlarm(secondsUntilCheckinRun, pendingIntent);
@@ -173,7 +173,7 @@ public class ScheduleService extends LifecycleService {
             Checkin lastCheckin = checkinService.getLastCheckinMade();
             Schedule lastCheckinSchedule = checkinService.getSchedule(lastCheckin.getScheduleId());
 
-            Integer checkinTimeLimit = sharedPref.getInt(getApplication().getString(R.string.pref_checkin_limit), Integer.parseInt(getApplication().getString(R.string.pref_checkin_limit_default)));
+            Integer checkinTimeLimit = Integer.parseInt(sharedPref.getString(getApplication().getString(R.string.pref_checkin_limit), getApplication().getString(R.string.pref_checkin_limit_default)));
             OffsetDateTime startDateTime = selectStartDateTime(lastCheckinSchedule, checkinTimeLimit);
 
             List<Agenda> agenda = checkinService.listAgenda();
@@ -188,7 +188,7 @@ public class ScheduleService extends LifecycleService {
                     if (nextSchedule != null) {
                         Checkin checkin = checkinService.createCheckinForSchedule(nextSchedule);
 
-                        Integer timeBeforeScheduleToRunCheckin = sharedPref.getInt(getApplicationContext().getString(R.string.pref_checkin_anticipate), 0);
+                        Integer timeBeforeScheduleToRunCheckin = Integer.parseInt(sharedPref.getString(getApplicationContext().getString(R.string.pref_checkin_anticipate), "0"));
                         Long secondsUntilCheckinRun = secondsUntilCheckin(nextSchedule, timeBeforeScheduleToRunCheckin);
 
                         if (secondsUntilCheckinRun > 0) {

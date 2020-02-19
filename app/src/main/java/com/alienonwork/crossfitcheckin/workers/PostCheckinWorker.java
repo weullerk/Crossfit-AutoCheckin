@@ -164,11 +164,9 @@ public class PostCheckinWorker extends Worker {
         return dateTimeSchedule.isAfter(OffsetDateTime.now());
     }
 
-
-
     private OffsetDateTime calculateTimeLimitForCheckin(Schedule schedule) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Long checkinTimeLimit = sharedPref.getLong(mContext.getApplicationContext().getString(R.string.pref_checkin_limit), Long.parseLong(getApplicationContext().getString(R.string.pref_checkin_limit_default)));
+        Long checkinTimeLimit = Long.parseLong(sharedPref.getString(mContext.getApplicationContext().getString(R.string.pref_checkin_limit), getApplicationContext().getString(R.string.pref_checkin_limit_default)));
 
         OffsetDateTime dateTimeSchedule = schedule.getDatetimeUTC();
         dateTimeSchedule.minusMinutes(checkinTimeLimit);

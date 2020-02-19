@@ -25,7 +25,7 @@
 
     <string name="pref_checkin_limit">PREF_CHECKIN_LIMIT</string>
     <string name="pref_checkin_limit_title">Tempo limite do checkin</string>
-    <string name="pref_checkin_limit_summary">Tempo limite que o checkin pode ser feito</string>
+    <string name="pref_checkin_limit_summary">Tempo limite antes da aula para o checkin ser feito</string>
     <string name="pref_checkin_limit_default">15</string>
 
     <string name="channel_name">Auto Checkin</string>
