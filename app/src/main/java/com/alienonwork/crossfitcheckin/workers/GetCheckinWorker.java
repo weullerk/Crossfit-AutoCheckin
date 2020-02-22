@@ -177,6 +177,6 @@ public class GetCheckinWorker extends Worker {
     }
 
     public static void create(Pair<LocalDate, LocalDate> localDatePair) {
-
+        // TODO: 21/02/2020 criar worker
     }
 }

@@ -143,10 +143,10 @@ public class ScheduleService extends LifecycleService {
                     .build();
             notification.create();
 
-
-
             handleSchedule();
         }
+
+        // todo create command to initiate the function to get list of schedules
 
         return START_NOT_STICKY;
     }
@@ -199,6 +199,7 @@ public class ScheduleService extends LifecycleService {
                         }
 
                     } else {
+                        // todo this could try forever if it didnot get schedules
                         getCheckinList(Date.getFirstAndLastDayOfNextWeek(), true);
                     }
                 } else {

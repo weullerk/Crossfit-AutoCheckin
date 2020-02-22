@@ -33,6 +33,6 @@ public class ScheduleViewModel extends AndroidViewModel {
     }
 
     public void loadSchedules() {
-        GetCheckinWorker.create(Date.getFirstAndLastDayOfCurrentWeek(null));
+        //etCheckinWorker.create(Date.getFirstAndLastDayOfCurrentWeek(null));
     }
 }
